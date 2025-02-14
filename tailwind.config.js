@@ -4,11 +4,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        "mainBlack": "#000000",
-        "subGray": "#333333",
-      }      
+        mainBlack: "#000000",
+        subGray: "#333333",
+      },
     },
   },
   plugins: [],
-}
-
+};

@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --cache --write ."
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.744.0",
     "aws-sdk": "^2.1692.0",
+    "prettier": "^3.5.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router": "^7.1.5"
