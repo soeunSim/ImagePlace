@@ -1,12 +1,15 @@
 import { faCropSimple, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
-
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import ToolTip from "./ToolTip";
 
-export default function ImageUpload() {
-  const IMAGE_MAX_SIZE = 1 * 1024 * 1024;
+export default function ImageUpload({ setPageID, pageId }) {
   const [isShowToolTip, setIsShowToolTip] = useState(false);
+
+  const IMAGE_MAX_SIZE = 1 * 1024 * 1024;
+  const navigate = useNavigate();
+  const fileCheck = useRef(null);
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -18,11 +21,23 @@ export default function ImageUpload() {
 
       return;
     } else if (file && file.size < IMAGE_MAX_SIZE) {
+
     }
   };
 
   const handleCloseToolTip = () => {
     setIsShowToolTip(false);
+  };
+
+  const handleUrlDelivery = () => {
+    if (fileCheck.current.value === "") {    
+      return ;
+    } else {
+      const newPageId = Date.now();
+
+      navigate(`/delivery/${newPageId} + ${pageId}`);
+      setPageID(pageId + 1);  
+    }
   };
 
   return (
@@ -44,15 +59,19 @@ export default function ImageUpload() {
           hover:file:bg-slate-800"
           type="file"
           accept=".png,.jpg,.jpeg"
+          ref={fileCheck}
           onChange={handleImageChange}
         />
         <button className="bg-blue-600 rounded-md px-4 py-1 mx-2 text-white">
           <FontAwesomeIcon icon={faCropSimple} />
         </button>
-        <button className="bg-indigo-800 rounded-md px-4 py-1 text-white">
+        <button 
+          className="bg-indigo-800 rounded-md px-4 py-1 text-white"
+          onClick={handleUrlDelivery}
+        >
           URL 생성
         </button>
-        {isShowToolTip ? (
+        {isShowToolTip && upFile? (
           <ToolTip
             isShowToolTip={isShowToolTip}
             onClickHandleEvent={handleCloseToolTip}
