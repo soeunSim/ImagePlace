@@ -1,10 +1,10 @@
+import ImageUpload from "./component/Imageupload";
+
 function App() {
   return (
-    <>
-      <h1 className="text-3xl font-bold underline text-mainBlack">
-        Hello world!
-      </h1>
-    </>
+    <div className="w-full h-screen bg-cyan-100 flex flex-col justify-center">
+      <ImageUpload />
+    </div>
   );
 }
 
