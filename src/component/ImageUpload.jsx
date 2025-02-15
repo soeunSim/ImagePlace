@@ -21,7 +21,7 @@ export default function ImageUpload({ setPageID, pageId }) {
 
       return;
     } else if (file && file.size < IMAGE_MAX_SIZE) {
-
+      console.log("S3 등록");
     }
   };
 
@@ -41,7 +41,7 @@ export default function ImageUpload({ setPageID, pageId }) {
   };
 
   return (
-    <div className="w-[680px] mx-auto my-0">
+    <div className="w-[680px] mx-auto my-0 animate-fadein">
       <h1 className="text-center flex flex-col items-center">
         <img
           className="w-[150px]"
@@ -71,7 +71,7 @@ export default function ImageUpload({ setPageID, pageId }) {
         >
           URL 생성
         </button>
-        {isShowToolTip && upFile? (
+        {isShowToolTip ? (
           <ToolTip
             isShowToolTip={isShowToolTip}
             onClickHandleEvent={handleCloseToolTip}
