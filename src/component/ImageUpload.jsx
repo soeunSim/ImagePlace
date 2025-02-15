@@ -1,7 +1,30 @@
-import { faCropSimple } from "@fortawesome/free-solid-svg-icons";
+import { faCropSimple, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
+
+import ToolTip from "./ToolTip";
 
 export default function ImageUpload() {
+  const IMAGE_MAX_SIZE = 1 * 1024 * 1024;
+  const [isShowToolTip, setIsShowToolTip] = useState(false);
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    const target = event.currentTarget;
+
+    if (file.size > IMAGE_MAX_SIZE) {
+      setIsShowToolTip(true);
+      target.value = "";
+
+      return;
+    } else if (file && file.size < IMAGE_MAX_SIZE) {
+    }
+  };
+
+  const handleCloseToolTip = () => {
+    setIsShowToolTip(false);
+  };
+
   return (
     <div className="w-[680px] mx-auto my-0">
       <h1 className="text-center flex flex-col items-center">
@@ -12,15 +35,16 @@ export default function ImageUpload() {
         />
         <span className="inline-block text-6xl">ImagePlace</span>
       </h1>
-      <div className="flex mt-[30px] font-bold">
+      <div className="flex mt-[30px] font-bold relative">
         <input
           className="border-2 border-slate-700 shadow-md rounded-md font-bold 
           block text-sm text-slate-500 flex-1 bg-white
-        file:mr-4 file:py-2 file:px-4
-        file:border-0 file:text-sm file:font-semibold
-        file:bg-black file:text-white
-        hover:file:bg-slate-800"
+          file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm 
+          file:font-semibold file:bg-black file:text-white
+          hover:file:bg-slate-800"
           type="file"
+          accept=".png,.jpg,.jpeg"
+          onChange={handleImageChange}
         />
         <button className="bg-blue-600 rounded-md px-4 py-1 mx-2 text-white">
           <FontAwesomeIcon icon={faCropSimple} />
@@ -28,6 +52,16 @@ export default function ImageUpload() {
         <button className="bg-indigo-800 rounded-md px-4 py-1 text-white">
           URL 생성
         </button>
+        {isShowToolTip ? (
+          <ToolTip
+            isShowToolTip={isShowToolTip}
+            onClickHandleEvent={handleCloseToolTip}
+            toolTopicon={faXmark}
+            message={"제한용량은 1MB입니다."}
+          ></ToolTip>
+        ) : (
+          ""
+        )}
       </div>
       <div className="h-[70px]"></div>
     </div>
