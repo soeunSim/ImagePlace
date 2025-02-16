@@ -4,8 +4,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        mainBlack: "#000000",
-        subGray: "#333333",
+        mainBackcolor : "#F7FCFF",
+        pointGray: "#313131",
+        pointBlue: "#6200EE",
+        inputColor: "#EDEDED",
       },
       keyframes: {
         fadein: {

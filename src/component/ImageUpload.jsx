@@ -3,9 +3,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import ToolTip from "./ToolTip";
+import  AWS  from  'aws-sdk' ;
 
-export default function ImageUpload({ setPageID, pageId }) {
+export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
   const [isShowToolTip, setIsShowToolTip] = useState(false);
+  const [selectFile, setSelectFile] = useState(null);
+  const [countID, setCountID] = useState(0);
 
   const IMAGE_MAX_SIZE = 1 * 1024 * 1024;
   const navigate = useNavigate();
@@ -18,13 +21,12 @@ export default function ImageUpload({ setPageID, pageId }) {
     if (file.size > IMAGE_MAX_SIZE) {
       setIsShowToolTip(true);
       target.value = "";
-
       return;
     } else if (file && file.size < IMAGE_MAX_SIZE) {
-      console.log("S3 등록");
+      setSelectFile(file);
     }
   };
-
+  console.log(selectFile);
   const handleCloseToolTip = () => {
     setIsShowToolTip(false);
   };
@@ -32,11 +34,38 @@ export default function ImageUpload({ setPageID, pageId }) {
   const handleUrlDelivery = () => {
     if (fileCheck.current.value === "") {    
       return ;
-    } else {
-      const newPageId = Date.now();
+    } else if (selectFile) {
+        setIsLoading(true);
 
-      navigate(`/delivery/${newPageId} + ${pageId}`);
-      setPageID(pageId + 1);  
+        AWS.config.update({
+          accessKeyId: import.meta.env.VITE_PUBLIC_S3_ACCESSKEYID , 
+          secretAccessKey: import.meta.env.VITE_PUBLIC_S3_SECRETACCESSKEY, 
+          region: import.meta.env.VITE_PUBLIC_S3_REGION , 
+        });
+        
+        const s3 = new AWS.S3(); 
+
+        console.log(selectFile);
+        
+        const uploadParams = {
+          Bucket: 'imgplace-load', 
+          Key: `upload/${selectFile.name}`,
+          Body: selectFile,
+        };
+
+        // S3에 파일 업로드
+        s3.upload(uploadParams, (err, data) => {
+          if (err) {
+            console.error('Error uploading', err);
+          } else {
+            setIsLoading(false);
+            const newPageId = Date.now();
+
+            navigate(`/delivery/${newPageId} + ${pageId}`);
+            setPageID(`${pageId}` + countID );   
+            setCountID(countID + 1);      
+          }
+        });       
     }
   };
 
@@ -52,10 +81,10 @@ export default function ImageUpload({ setPageID, pageId }) {
       </h1>
       <div className="flex mt-[30px] font-bold relative">
         <input
-          className="border-2 border-slate-700 shadow-md rounded-md font-bold 
+          className="border-2 border-pointGray shadow-md rounded-md font-bold 
           block text-sm text-slate-500 flex-1 bg-white
           file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm 
-          file:font-semibold file:bg-black file:text-white
+          file:font-semibold file:bg-pointGray file:text-white
           hover:file:bg-slate-800"
           type="file"
           accept=".png,.jpg,.jpeg"
@@ -66,7 +95,7 @@ export default function ImageUpload({ setPageID, pageId }) {
           <FontAwesomeIcon icon={faCropSimple} />
         </button>
         <button 
-          className="bg-indigo-800 rounded-md px-4 py-1 text-white"
+          className="bg-pointBlue rounded-md px-4 py-1 text-white"
           onClick={handleUrlDelivery}
         >
           URL 생성

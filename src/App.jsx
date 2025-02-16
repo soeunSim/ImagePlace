@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ImageUpload from "./component/Imageupload";
+import ImageUpload from "./component/ImageUpload";
 import Loding from "./component/Loding";
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <div className="w-full h-screen bg-cyan-100 flex flex-col justify-center">
+    <div className="w-full h-screen bg-mainBackcolor flex flex-col justify-center">
       {isLoading ? 
       <Loding />
       : 
