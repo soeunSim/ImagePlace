@@ -3,7 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import ToolTip from "./ToolTip";
-import  AWS  from  'aws-sdk' ;
+import  AWS  from  'aws-sdk';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
   const [isShowToolTip, setIsShowToolTip] = useState(false);
@@ -27,6 +28,7 @@ export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
     }
   };
   console.log(selectFile);
+
   const handleCloseToolTip = () => {
     setIsShowToolTip(false);
   };
@@ -45,15 +47,17 @@ export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
         
         const s3 = new AWS.S3(); 
 
-        console.log(selectFile);
-        
+        const fileExtension = selectFile.name.split('.').pop();
+        const newFileName = `${uuidv4()}.${fileExtension}`;
+
+        const renamedFile = new File([selectFile], newFileName, { type: selectFile.type });
+
         const uploadParams = {
           Bucket: 'imgplace-load', 
-          Key: `upload/${selectFile.name}`,
-          Body: selectFile,
+          Key: `upload/${renamedFile.name}`,
+          Body: renamedFile,
         };
 
-        // S3에 파일 업로드
         s3.upload(uploadParams, (err, data) => {
           if (err) {
             console.error('Error uploading', err);
