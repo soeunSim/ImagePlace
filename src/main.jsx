@@ -6,6 +6,7 @@ import App from "./App.jsx";
 import UrlDelivery from "./component/UrlDelivery .jsx";
 import "./index.css";
 import Loding from "./component/Loding.jsx";
+import "./static/fonts/font.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

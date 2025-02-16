@@ -33,7 +33,7 @@ export default function UrlDelivery() {
     <div className="w-full h-screen bg-mainBackcolor">
       <div className="w-[680px] mx-auto my-0">
         <div className="pt-[1.8rem]">
-          <h2 className="text-center pb-4 text-4xl font-bold text-pointBlue">
+          <h2 className="text-center title pb-4 text-4xl font-bold text-pointBlue">
             URL creation completed!
           </h2>
           <div className="rounded-md overflow-hidden">

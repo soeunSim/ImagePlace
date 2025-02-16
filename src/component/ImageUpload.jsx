@@ -77,7 +77,7 @@ export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
           src={`./public/images/logo.png`}
           alt="로고 이미지"
         />
-        <span className="inline-block text-6xl">ImagePlace</span>
+        <span className="inline-block text-6xl title">ImagePlace</span>
       </h1>
       <div className="flex mt-[30px] font-bold relative">
         <input
