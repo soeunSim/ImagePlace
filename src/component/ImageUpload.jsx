@@ -9,7 +9,6 @@ import { v4 as uuidv4 } from 'uuid';
 export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
   const [isShowToolTip, setIsShowToolTip] = useState(false);
   const [selectFile, setSelectFile] = useState(null);
-  const [countID, setCountID] = useState(0);
 
   const IMAGE_MAX_SIZE = 1 * 1024 * 1024;
   const navigate = useNavigate();
@@ -63,11 +62,8 @@ export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
             console.error('Error uploading', err);
           } else {
             setIsLoading(false);
-            const newPageId = Date.now();
 
-            navigate(`/delivery/${newPageId} + ${pageId}`);
-            setPageID(`${pageId}` + countID );   
-            setCountID(countID + 1);      
+            navigate(`/delivery/${uuidv4}`);   
           }
         });       
     }

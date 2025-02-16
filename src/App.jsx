@@ -3,7 +3,6 @@ import ImageUpload from "./component/ImageUpload";
 import Loding from "./component/Loding";
 
 function App() {
-  const [pageId, setPageID] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
   return (
@@ -11,7 +10,7 @@ function App() {
       {isLoading ? 
       <Loding />
       : 
-      <ImageUpload setPageID={setPageID} pageId={pageId} setIsLoading={setIsLoading} />      
+      <ImageUpload setIsSLoading={setIsLoading} />      
       }
     </div>
   );
