@@ -1,10 +1,8 @@
-//import { useState } from "react";
 import ImageUpload from "./component/ImageUpload";
 import Loding from "./component/Loding";
 import useLodingStore from "./store/useLodingStore";
 
 function App() {
-  //const [isLoading, setIsLoading] = useState(false);
   const { isLoding } = useLodingStore();
 
   return (
