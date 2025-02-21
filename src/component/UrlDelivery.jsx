@@ -5,8 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
 
+import useLodingStore from "../store/useLodingStore";
+
 export default function UrlDelivery() {
   const [urlData, setUrlData] = useState(null);
+  const { setIsLoding } = useLodingStore();
   const navigate = useNavigate();
   const { id } = useParams();
   const deliveryCanvasRef = useRef();
@@ -16,7 +19,7 @@ export default function UrlDelivery() {
     const getDataOfImageUrlInDB = async () => {
       try {
         const response = await fetch(
-          `https://en8nts1hs2.execute-api.ap-northeast-2.amazonaws.com/get-url-data/delivery/${{ id }}`
+          `https://en8nts1hs2.execute-api.ap-northeast-2.amazonaws.com/get-url-data/delivery/${id}`
         );
 
         if (!response.ok) {
@@ -29,7 +32,8 @@ export default function UrlDelivery() {
       }
     };
     getDataOfImageUrlInDB();
-  }, [id]);
+    setIsLoding(false);
+  }, [id, setIsLoding]);
 
   const CANVASWIDTH = 680;
   const CANVASHEIGHT = 400;

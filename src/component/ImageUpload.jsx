@@ -1,14 +1,13 @@
 import { faCropSimple } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import PropTypes from "prop-types";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
-import useUrlStore from "../store/useUrlStore";
+import useLodingStore from "../store/useLodingStore";
 import ToolTip from "./ToolTip";
 
-export default function ImageUpload({ setIsLoading }) {
-  const addUrlList = useUrlStore((state) => state.addUrlList);
+export default function ImageUpload() {
+  const { setIsLoding } = useLodingStore();
   const [isShowToolTip, setIsShowToolTip] = useState(false);
   const [selectFile, setSelectFile] = useState(null);
 
@@ -39,7 +38,7 @@ export default function ImageUpload({ setIsLoading }) {
       return;
     }
 
-    setIsLoading(true);
+    setIsLoding(true);
 
     try {
       const payload = {
@@ -82,8 +81,6 @@ export default function ImageUpload({ setIsLoading }) {
         throw new Error("S3 업로드 실패");
       }
 
-      setIsLoading(false);
-      addUrlList(savedItem);
       navigate(`/delivery/${savedItem.id}`);
     } catch (error) {
       console.error("파일 업로드 에러:", error);
@@ -136,7 +133,3 @@ export default function ImageUpload({ setIsLoading }) {
     </div>
   );
 }
-
-ImageUpload.propTypes = {
-  setIsLoading: PropTypes.func.isRequired,
-};
