@@ -5,19 +5,31 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
 
-import useUrlStore from "../store/useUrlStore";
-
 export default function UrlDelivery() {
   const [urlData, setUrlData] = useState(null);
   const navigate = useNavigate();
   const { id } = useParams();
   const deliveryCanvasRef = useRef();
-  const urlList = useUrlStore((state) => state.urlList);
 
   useEffect(() => {
-    const found = urlList.find((element) => element.id === id);
-    setUrlData(found);
-  }, [urlList, id]);
+    if (!id) return;
+    const getDataOfImageUrlInDB = async () => {
+      try {
+        const response = await fetch(
+          `https://en8nts1hs2.execute-api.ap-northeast-2.amazonaws.com/get-url-data/delivery/${{ id }}`
+        );
+
+        if (!response.ok) {
+          throw new Error("네트워크 응답 오류");
+        }
+        const responseResult = await response.json();
+        setUrlData(responseResult);
+      } catch (err) {
+        console.log(`요청을 가져올 수 없습니다: ${err}`);
+      }
+    };
+    getDataOfImageUrlInDB();
+  }, [id]);
 
   const CANVASWIDTH = 680;
   const CANVASHEIGHT = 400;
