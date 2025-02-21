@@ -92,7 +92,7 @@ export default function ImageUpload() {
       <h1 className="text-center flex flex-col items-center relative">
         <img
           className="w-[150px]"
-          src={`./public/images/logo_01.png`}
+          src={`/images/logo_01.png`}
           alt="로고 이미지"
         />
         <span className="inline-block text-6xl title pt-3">ImagePlace</span>
