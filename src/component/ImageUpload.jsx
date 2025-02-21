@@ -1,12 +1,14 @@
-import { faCropSimple, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faCropSimple } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import PropTypes from "prop-types";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import ToolTip from "./ToolTip";
-import  AWS  from  'aws-sdk';
-import { v4 as uuidv4 } from 'uuid';
 
-export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
+import useUrlStore from "../store/useUrlStore";
+import ToolTip from "./ToolTip";
+
+export default function ImageUpload({ setIsLoading }) {
+  const addUrlList = useUrlStore((state) => state.addUrlList);
   const [isShowToolTip, setIsShowToolTip] = useState(false);
   const [selectFile, setSelectFile] = useState(null);
 
@@ -26,58 +28,77 @@ export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
       setSelectFile(file);
     }
   };
-  console.log(selectFile);
 
   const handleCloseToolTip = () => {
     setIsShowToolTip(false);
   };
 
-  const handleUrlDelivery = () => {
-    if (fileCheck.current.value === "") {    
-      return ;
-    } else if (selectFile) {
-        setIsLoading(true);
+  const handleUrlDelivery = async () => {
+    if (!selectFile) {
+      console.error("selectFile, null or undefined");
+      return;
+    }
 
-        AWS.config.update({
-          accessKeyId: import.meta.env.VITE_PUBLIC_S3_ACCESSKEYID , 
-          secretAccessKey: import.meta.env.VITE_PUBLIC_S3_SECRETACCESSKEY, 
-          region: import.meta.env.VITE_PUBLIC_S3_REGION , 
-        });
-        
-        const s3 = new AWS.S3(); 
+    setIsLoading(true);
 
-        const fileExtension = selectFile.name.split('.').pop();
-        const newFileName = `${uuidv4()}.${fileExtension}`;
+    try {
+      const payload = {
+        fileName: selectFile.name,
+        fileType: selectFile.type,
+      };
 
-        const renamedFile = new File([selectFile], newFileName, { type: selectFile.type });
+      const presignResponse = await fetch(
+        "https://r97e0i6ui6.execute-api.ap-northeast-2.amazonaws.com/this-api/change",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
-        const uploadParams = {
-          Bucket: 'imgplace-load', 
-          Key: `upload/${renamedFile.name}`,
-          Body: renamedFile,
-        };
+      if (!presignResponse.ok) {
+        const errorText = await presignResponse.text();
+        console.error("Pre-signed URL request failed / response:", errorText);
+        throw new Error("pre-signed URL 요청 실패");
+      }
 
-        s3.upload(uploadParams, (err, data) => {
-          if (err) {
-            console.error('Error uploading', err);
-          } else {
-            setIsLoading(false);
+      const { uploadUrl, savedItem } = await presignResponse.json();
 
-            navigate(`/delivery/${uuidv4}`);   
-          }
-        });       
+      const putOptions = {
+        method: "PUT",
+        headers: {
+          "Content-Type": selectFile.type,
+        },
+        body: selectFile,
+      };
+
+      const uploadResponse = await fetch(uploadUrl, putOptions, savedItem);
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        console.error("S3 업로드 실패, 응답:", errorText);
+        throw new Error("S3 업로드 실패");
+      }
+
+      setIsLoading(false);
+      addUrlList(savedItem);
+      navigate(`/delivery/${savedItem.id}`);
+    } catch (error) {
+      console.error("파일 업로드 에러:", error);
     }
   };
 
   return (
     <div className="w-[680px] mx-auto my-0 animate-fadein">
-      <h1 className="text-center flex flex-col items-center">
+      <h1 className="text-center flex flex-col items-center relative">
         <img
           className="w-[150px]"
-          src={`./public/images/logo.png`}
+          src={`./public/images/logo_01.png`}
           alt="로고 이미지"
         />
-        <span className="inline-block text-6xl title">ImagePlace</span>
+        <span className="inline-block text-6xl title pt-3">ImagePlace</span>
       </h1>
       <div className="flex mt-[30px] font-bold relative">
         <input
@@ -91,11 +112,11 @@ export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
           ref={fileCheck}
           onChange={handleImageChange}
         />
-        <button className="bg-blue-600 rounded-md px-4 py-1 mx-2 text-white">
+        <button className="bg-pointLogo rounded-md px-4 py-1 mx-2 text-white">
           <FontAwesomeIcon icon={faCropSimple} />
         </button>
-        <button 
-          className="bg-pointBlue rounded-md px-4 py-1 text-white"
+        <button
+          className="bg-pointBlue rounded-md px-4 py-1 text-white hover:bg-hoverBlue"
           onClick={handleUrlDelivery}
         >
           URL 생성
@@ -104,7 +125,7 @@ export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
           <ToolTip
             isShowToolTip={isShowToolTip}
             onClickHandleEvent={handleCloseToolTip}
-            toolTopicon={faXmark}
+            icon={FontAwesomeIcon}
             message={"제한용량은 1MB입니다."}
           ></ToolTip>
         ) : (
@@ -115,3 +136,7 @@ export default function ImageUpload({ setPageID, pageId ,setIsLoading }) {
     </div>
   );
 }
+
+ImageUpload.propTypes = {
+  setIsLoading: PropTypes.func.isRequired,
+};

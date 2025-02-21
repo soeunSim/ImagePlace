@@ -3,9 +3,9 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router";
 
 import App from "./App.jsx";
-import UrlDelivery from "./component/UrlDelivery .jsx";
-import "./index.css";
 import Loding from "./component/Loding.jsx";
+import UrlDelivery from "./component/UrlDelivery.jsx";
+import "./index.css";
 import "./static/fonts/font.css";
 
 createRoot(document.getElementById("root")).render(
@@ -16,14 +16,14 @@ createRoot(document.getElementById("root")).render(
           path="/delivery/:id"
           element={<UrlDelivery />}
         />
-        <Route 
+        <Route
           path="/loding"
-          element={<Loding />}        
+          element={<Loding />}
         />
         <Route
           path="/"
           element={<App />}
-        />        
+        />
       </Routes>
     </BrowserRouter>
   </StrictMode>
