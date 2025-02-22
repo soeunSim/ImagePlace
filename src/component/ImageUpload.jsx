@@ -35,7 +35,11 @@ export default function ImageUpload() {
   };
 
   const handleShowModal = () => {
-    setIsShowCropMadal(true);
+    if (!selectFile) {
+      alert("파일을 등록해주세요.");
+    } else {
+      setIsShowCropMadal(true);
+    }
   };
 
   const handleUrlDelivery = async () => {
@@ -142,7 +146,10 @@ export default function ImageUpload() {
         <div className="h-[70px]"></div>
       </div>
       {isShowCropModal ? (
-        <CropModal setIsShowCropMadal={setIsShowCropMadal} />
+        <CropModal
+          selectFile={selectFile}
+          setIsShowCropMadal={setIsShowCropMadal}
+        />
       ) : (
         ""
       )}

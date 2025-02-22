@@ -28,7 +28,7 @@ export default function UrlDelivery() {
         const responseResult = await response.json();
         setUrlData(responseResult);
       } catch (err) {
-        console.log(`요청을 가져올 수 없습니다: ${err}`);
+        console.error(`요청을 가져올 수 없습니다: ${err}`);
       }
     };
     getDataOfImageUrlInDB();

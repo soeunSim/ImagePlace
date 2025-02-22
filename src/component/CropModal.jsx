@@ -1,13 +1,74 @@
 import PropTypes from "prop-types";
 import { useEffect, useRef } from "react";
 
-export default function CropModal({ setIsShowCropMadal }) {
+export default function CropModal({ selectFile, setIsShowCropMadal }) {
   const cropCanvasRef = useRef();
+  const CANVASWIDTH = 680;
+  const CANVASHEIGHT = 400;
 
   const handelCloseModal = () => {
     setIsShowCropMadal(false);
   };
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (selectFile) {
+      const image = new Image();
+      const imageUrl = URL.createObjectURL(selectFile);
+      image.src = imageUrl;
+
+      image.onload = () => {
+        drowCanvas(image);
+        URL.revokeObjectURL(imageUrl);
+      };
+    }
+  }, [selectFile]);
+
+  const drowCanvas = (image) => {
+    const Canvas = cropCanvasRef.current;
+    const context = Canvas.getContext("2d");
+    const dpr = Math.min(window.devicePixelRatio, 3) || 1;
+
+    Canvas.width = CANVASWIDTH;
+    Canvas.height = CANVASHEIGHT;
+
+    const imageWidth = image.width;
+    const imageHeight = image.height;
+
+    let scaleFactor;
+    if (imageWidth > CANVASWIDTH || imageHeight > CANVASHEIGHT) {
+      scaleFactor =
+        imageWidth > imageHeight
+          ? CANVASWIDTH / imageWidth
+          : CANVASHEIGHT / imageHeight;
+    } else {
+      scaleFactor = 1;
+    }
+    const drawnWidth = imageWidth * scaleFactor;
+    const drawnHeight = imageHeight * scaleFactor;
+
+    Canvas.width = CANVASWIDTH * dpr;
+    Canvas.height = CANVASHEIGHT * dpr;
+    context.scale(dpr, dpr);
+
+    Canvas.style.width = CANVASWIDTH + "px";
+    Canvas.style.height = CANVASHEIGHT + "px";
+
+    const offsetX = (CANVASWIDTH - drawnWidth) / 2;
+    const offsetY = (CANVASHEIGHT - drawnHeight) / 2;
+
+    context.fillStyle = "#313131";
+    context.fillRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
+    context.drawImage(
+      image,
+      0,
+      0,
+      imageWidth,
+      imageHeight,
+      offsetX,
+      offsetY,
+      drawnWidth,
+      drawnHeight
+    );
+  };
 
   return (
     <div className="absolute w-full h-dvh left-0 bg-gray-950/50">
@@ -45,6 +106,7 @@ function ButtonOfCropModal({ message, btnBackgroundColor, handleClick }) {
 }
 
 CropModal.propTypes = {
+  selectFile: PropTypes.object,
   setIsShowCropMadal: PropTypes.func,
 };
 
