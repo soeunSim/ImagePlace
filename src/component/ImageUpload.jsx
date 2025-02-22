@@ -4,11 +4,13 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
 import useLodingStore from "../store/useLodingStore";
+import CropModal from "./CropModal";
 import ToolTip from "./ToolTip";
 
 export default function ImageUpload() {
   const { setIsLoding } = useLodingStore();
   const [isShowToolTip, setIsShowToolTip] = useState(false);
+  const [isShowCropModal, setIsShowCropMadal] = useState(false);
   const [selectFile, setSelectFile] = useState(null);
 
   const IMAGE_MAX_SIZE = 1 * 1024 * 1024;
@@ -30,6 +32,10 @@ export default function ImageUpload() {
 
   const handleCloseToolTip = () => {
     setIsShowToolTip(false);
+  };
+
+  const handleShowModal = () => {
+    setIsShowCropMadal(true);
   };
 
   const handleUrlDelivery = async () => {
@@ -88,48 +94,58 @@ export default function ImageUpload() {
   };
 
   return (
-    <div className="w-[680px] mx-auto my-0 animate-fadein">
-      <h1 className="text-center flex flex-col items-center relative">
-        <img
-          className="w-[150px]"
-          src={`/images/logo_01.png`}
-          alt="로고 이미지"
-        />
-        <span className="inline-block text-6xl title pt-3">ImagePlace</span>
-      </h1>
-      <div className="flex mt-[30px] font-bold relative">
-        <input
-          className="border-2 border-pointGray shadow-md rounded-md font-bold 
-          block text-sm text-slate-500 flex-1 bg-white
-          file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm 
-          file:font-semibold file:bg-pointGray file:text-white
-          hover:file:bg-slate-800"
-          type="file"
-          accept=".png,.jpg,.jpeg"
-          ref={fileCheck}
-          onChange={handleImageChange}
-        />
-        <button className="bg-pointLogo rounded-md px-4 py-1 mx-2 text-white">
-          <FontAwesomeIcon icon={faCropSimple} />
-        </button>
-        <button
-          className="bg-pointBlue rounded-md px-4 py-1 text-white hover:bg-hoverBlue"
-          onClick={handleUrlDelivery}
-        >
-          URL 생성
-        </button>
-        {isShowToolTip ? (
-          <ToolTip
-            isShowToolTip={isShowToolTip}
-            onClickHandleEvent={handleCloseToolTip}
-            icon={FontAwesomeIcon}
-            message={"제한용량은 1MB입니다."}
-          ></ToolTip>
-        ) : (
-          ""
-        )}
+    <div className="relative w-full h-screen bg-mainBackcolor flex flex-col justify-center">
+      <div className="w-[680px] mx-auto my-0 animate-fadein">
+        <h1 className="text-center flex flex-col items-center relative">
+          <img
+            className="w-[150px]"
+            src={`/images/logo_01.png`}
+            alt="로고 이미지"
+          />
+          <span className="inline-block text-6xl title pt-3">ImagePlace</span>
+        </h1>
+        <div className="flex mt-[30px] font-bold relative">
+          <input
+            className="border-2 border-pointGray shadow-md rounded-md font-bold 
+            block text-sm text-slate-500 flex-1 bg-white
+            file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm 
+            file:font-semibold file:bg-pointGray file:text-white
+            hover:file:bg-slate-800"
+            type="file"
+            accept=".png,.jpg,.jpeg"
+            ref={fileCheck}
+            onChange={handleImageChange}
+          />
+          <button
+            className="bg-pointLogo rounded-md px-4 py-1 mx-2 text-white"
+            onClick={handleShowModal}
+          >
+            <FontAwesomeIcon icon={faCropSimple} />
+          </button>
+          <button
+            className="bg-pointBlue rounded-md px-4 py-1 text-white hover:bg-hoverBlue"
+            onClick={handleUrlDelivery}
+          >
+            URL 생성
+          </button>
+          {isShowToolTip ? (
+            <ToolTip
+              isShowToolTip={isShowToolTip}
+              onClickHandleEvent={handleCloseToolTip}
+              icon={FontAwesomeIcon}
+              message={"제한용량은 1MB입니다."}
+            ></ToolTip>
+          ) : (
+            ""
+          )}
+        </div>
+        <div className="h-[70px]"></div>
       </div>
-      <div className="h-[70px]"></div>
+      {isShowCropModal ? (
+        <CropModal setIsShowCropMadal={setIsShowCropMadal} />
+      ) : (
+        ""
+      )}
     </div>
   );
 }
