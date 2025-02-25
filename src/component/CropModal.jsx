@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const CANVASWIDTH = 680;
 const CANVASHEIGHT = 400;
+const HANDLE_SIZE = 10;
 
 export default function CropModal({ selectFile, setIsShowCropModal }) {
   const [imageSrc, setImageSrc] = useState(null);
@@ -43,8 +44,33 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
 
     ctx.strokeStyle = "yellow";
     ctx.lineWidth = 2;
-
     ctx.strokeRect(cropRect.x, cropRect.y, cropRect.width, cropRect.height);
+
+    ctx.fillStyle = "yellow";
+    ctx.fillRect(
+      cropRect.x - HANDLE_SIZE / 2,
+      cropRect.y - HANDLE_SIZE / 2,
+      HANDLE_SIZE,
+      HANDLE_SIZE
+    );
+    ctx.fillRect(
+      cropRect.x + cropRect.width - HANDLE_SIZE / 2,
+      cropRect.y - HANDLE_SIZE / 2,
+      HANDLE_SIZE,
+      HANDLE_SIZE
+    );
+    ctx.fillRect(
+      cropRect.x - HANDLE_SIZE / 2,
+      cropRect.y + cropRect.height - HANDLE_SIZE / 2,
+      HANDLE_SIZE,
+      HANDLE_SIZE
+    );
+    ctx.fillRect(
+      cropRect.x + cropRect.width - HANDLE_SIZE / 2,
+      cropRect.y + cropRect.height - HANDLE_SIZE / 2,
+      HANDLE_SIZE,
+      HANDLE_SIZE
+    );
   }, [cropRect.x, cropRect.y, cropRect.width, cropRect.height]);
 
   useEffect(() => {
