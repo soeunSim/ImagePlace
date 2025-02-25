@@ -1,22 +1,51 @@
 import PropTypes from "prop-types";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const CANVASWIDTH = 680;
 const CANVASHEIGHT = 400;
 
 export default function CropModal({ selectFile, setIsShowCropModal }) {
   const [imageSrc, setImageSrc] = useState(null);
+  const [cropRect, setCropRect] = useState({
+    x: 100,
+    y: 50,
+    width: 200,
+    height: 150,
+  });
   const baseCanvasRef = useRef(null);
   const originalImageRef = useRef(null);
+  const overlayCanvasRef = useRef(null);
   const didInitRef = useRef(false);
 
   useEffect(() => {
     if (selectFile) {
       const reader = new FileReader();
-      reader.onload = (event) => setImageSrc(event.target.result);
+      reader.onload = (event) => {
+        setImageSrc(event.target.result);
+      };
       reader.readAsDataURL(selectFile);
     }
   }, [selectFile]);
+
+  const drawOverlay = useCallback(() => {
+    const canvas = overlayCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const dpr = Math.min(window.devicePixelRatio, 3) || 1;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+
+    ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.fillRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
+
+    ctx.clearRect(cropRect.x, cropRect.y, cropRect.width, cropRect.height);
+
+    ctx.strokeStyle = "yellow";
+    ctx.lineWidth = 2;
+
+    ctx.strokeRect(cropRect.x, cropRect.y, cropRect.width, cropRect.height);
+  }, [cropRect.x, cropRect.y, cropRect.width, cropRect.height]);
 
   useEffect(() => {
     if (!imageSrc || didInitRef.current) return;
@@ -38,11 +67,14 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
     originalImageRef.current = image;
 
     image.onload = () => {
-      const iw = image.width,
-        ih = image.height;
-      let scaleFactor = 1;
+      const iw = image.width;
+      const ih = image.height;
+
+      let scaleFactor;
       if (iw > CANVASWIDTH || ih > CANVASHEIGHT) {
         scaleFactor = iw > ih ? CANVASWIDTH / iw : CANVASHEIGHT / ih;
+      } else {
+        scaleFactor = 1;
       }
       const drawnWidth = iw * scaleFactor;
       const drawnHeight = ih * scaleFactor;
@@ -63,9 +95,28 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
         drawnHeight
       );
 
+      setCropRect({
+        x: offsetX + 20,
+        y: offsetY + 20,
+        width: Math.min(200, drawnWidth - 40),
+        height: Math.min(150, drawnHeight - 40),
+      });
+
+      const overlayCanvas = overlayCanvasRef.current;
+      const overlayCtx = overlayCanvas.getContext("2d");
+
+      overlayCanvas.width = CANVASWIDTH * dpr;
+      overlayCanvas.height = CANVASHEIGHT * dpr;
+
+      overlayCtx.scale(dpr, dpr);
+
+      overlayCanvas.style.width = `${CANVASWIDTH}px`;
+      overlayCanvas.style.height = `${CANVASHEIGHT}px`;
+
+      drawOverlay();
       didInitRef.current = true;
     };
-  }, [imageSrc]);
+  }, [imageSrc, drawOverlay]);
 
   const handelCloseModal = () => {
     setIsShowCropModal(false);
@@ -74,7 +125,16 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
   return (
     <div className="absolute w-full h-dvh left-0 bg-gray-950/50">
       <div className="w-[680px] absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 bg-white rounded-md">
-        <canvas ref={baseCanvasRef}></canvas>
+        <div className={`relative w-[680px] h-[400px]`}>
+          <canvas
+            ref={baseCanvasRef}
+            className="block"
+          />
+          <canvas
+            ref={overlayCanvasRef}
+            className={`absolute top-0 left-0`}
+          />
+        </div>
         <div className="p-5 flex justify-end">
           <ButtonOfCropModal
             btnBackgroundColor={`bg-pointLogo`}
