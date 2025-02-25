@@ -248,6 +248,11 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
     setCropRect(newRect);
   };
 
+  const handleMouseUp = () => {
+    setActiveHandle(null);
+    setResizeStart(null);
+  };
+
   const handelCloseModal = () => {
     setIsShowCropModal(false);
   };
@@ -261,6 +266,7 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
             className="block"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
           />
           <canvas
             ref={overlayCanvasRef}
