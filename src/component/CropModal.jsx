@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const CANVASWIDTH = 680;
 const CANVASHEIGHT = 400;
 const HANDLE_SIZE = 10;
+const MIN_CROP_SIZE = 50;
 
 export default function CropModal({ selectFile, setIsShowCropModal }) {
   const [imageSrc, setImageSrc] = useState(null);
@@ -225,6 +226,23 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
         break;
       default:
         break;
+    }
+
+    if (newRect.width < MIN_CROP_SIZE) newRect.width = MIN_CROP_SIZE;
+    if (newRect.height < MIN_CROP_SIZE) newRect.height = MIN_CROP_SIZE;
+    if (newRect.x < 0) {
+      newRect.width += newRect.x;
+      newRect.x = 0;
+    }
+    if (newRect.y < 0) {
+      newRect.height += newRect.y;
+      newRect.y = 0;
+    }
+    if (newRect.x + newRect.width > CANVASWIDTH) {
+      newRect.width = CANVASWIDTH - newRect.x;
+    }
+    if (newRect.y + newRect.height > CANVASHEIGHT) {
+      newRect.height = CANVASHEIGHT - newRect.y;
     }
 
     setCropRect(newRect);
