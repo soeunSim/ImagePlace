@@ -13,6 +13,8 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
     width: 200,
     height: 150,
   });
+  const [activeHandle, setActiveHandle] = useState(null);
+  const [resizeStart, setResizeStart] = useState(null);
   const baseCanvasRef = useRef(null);
   const originalImageRef = useRef(null);
   const overlayCanvasRef = useRef(null);
@@ -144,6 +146,57 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
     };
   }, [imageSrc, drawOverlay]);
 
+  const getHandleUnderMouse = (mouseX, mouseY) => {
+    if (
+      mouseX >= cropRect.x - HANDLE_SIZE / 2 &&
+      mouseX <= cropRect.x + HANDLE_SIZE / 2 &&
+      mouseY >= cropRect.y - HANDLE_SIZE / 2 &&
+      mouseY <= cropRect.y + HANDLE_SIZE / 2
+    )
+      return "tl";
+    if (
+      mouseX >= cropRect.x + cropRect.width - HANDLE_SIZE / 2 &&
+      mouseX <= cropRect.x + cropRect.width + HANDLE_SIZE / 2 &&
+      mouseY >= cropRect.y - HANDLE_SIZE / 2 &&
+      mouseY <= cropRect.y + HANDLE_SIZE / 2
+    )
+      return "tr";
+    if (
+      mouseX >= cropRect.x - HANDLE_SIZE / 2 &&
+      mouseX <= cropRect.x + HANDLE_SIZE / 2 &&
+      mouseY >= cropRect.y + cropRect.height - HANDLE_SIZE / 2 &&
+      mouseY <= cropRect.y + cropRect.height + HANDLE_SIZE / 2
+    )
+      return "bl";
+    if (
+      mouseX >= cropRect.x + cropRect.width - HANDLE_SIZE / 2 &&
+      mouseX <= cropRect.x + cropRect.width + HANDLE_SIZE / 2 &&
+      mouseY >= cropRect.y + cropRect.height - HANDLE_SIZE / 2 &&
+      mouseY <= cropRect.y + cropRect.height + HANDLE_SIZE / 2
+    )
+      return "br";
+    return null;
+  };
+
+  const handleMouseDown = (event) => {
+    const rect = overlayCanvasRef.current.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    const handle = getHandleUnderMouse(mouseX, mouseY);
+    if (handle) {
+      setActiveHandle(handle);
+      setResizeStart({
+        mouseX,
+        mouseY,
+        cropRect: { ...cropRect },
+      });
+    }
+  };
+
+  const handleMouseMove = () => {
+    if (!activeHandle || !resizeStart) return;
+  };
+
   const handelCloseModal = () => {
     setIsShowCropModal(false);
   };
@@ -155,6 +208,8 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
           <canvas
             ref={baseCanvasRef}
             className="block"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
           />
           <canvas
             ref={overlayCanvasRef}
