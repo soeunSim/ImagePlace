@@ -1,12 +1,17 @@
 import PropTypes from "prop-types";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CANVASWIDTH = 680;
 const CANVASHEIGHT = 400;
 const HANDLE_SIZE = 10;
 const MIN_CROP_SIZE = 50;
 
-export default function CropModal({ selectFile, setIsShowCropModal }) {
+export default function CropModal({
+  selectFile,
+  setIsLoding,
+  setIsShowCropModal,
+}) {
   const [imageSrc, setImageSrc] = useState(null);
   const [cropRect, setCropRect] = useState({
     x: 100,
@@ -14,12 +19,21 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
     width: 200,
     height: 150,
   });
+  const [recodeParams, setRecodeParams] = useState({
+    scaleFactor: 1,
+    offsetX: 0,
+    offsetY: 0,
+    imageWidth: 0,
+    imageHeight: 0,
+  });
   const [activeHandle, setActiveHandle] = useState(null);
   const [resizeStart, setResizeStart] = useState(null);
   const baseCanvasRef = useRef(null);
   const originalImageRef = useRef(null);
   const overlayCanvasRef = useRef(null);
   const didInitRef = useRef(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (selectFile) {
@@ -130,6 +144,13 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
         width: Math.min(200, drawnWidth - 40),
         height: Math.min(150, drawnHeight - 40),
       });
+      setRecodeParams({
+        scaleFactor,
+        offsetX,
+        offsetY,
+        imageWidth: iw,
+        imageHeight: ih,
+      });
 
       const overlayCanvas = overlayCanvasRef.current;
       const overlayCtx = overlayCanvas.getContext("2d");
@@ -146,6 +167,10 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
       didInitRef.current = true;
     };
   }, [imageSrc, drawOverlay]);
+
+  useEffect(() => {
+    drawOverlay();
+  }, [drawOverlay]);
 
   const getHandleUnderMouse = (mouseX, mouseY) => {
     if (
@@ -253,6 +278,79 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
     setResizeStart(null);
   };
 
+  const handleCrop = async () => {
+    if (!originalImageRef.current) return;
+    const { scaleFactor, offsetX, offsetY } = recodeParams;
+    const originalX = Math.floor((cropRect.x - offsetX) / scaleFactor);
+    const originalY = Math.floor((cropRect.y - offsetY) / scaleFactor);
+    const originalWidth = Math.floor(cropRect.width / scaleFactor);
+    const originalHeight = Math.floor(cropRect.height / scaleFactor);
+
+    const cropCanvas = document.createElement("canvas");
+    cropCanvas.width = originalWidth;
+    cropCanvas.height = originalHeight;
+    const cropCtx = cropCanvas.getContext("2d");
+    cropCtx.drawImage(
+      originalImageRef.current,
+      originalX,
+      originalY,
+      originalWidth,
+      originalHeight,
+      0,
+      0,
+      originalWidth,
+      originalHeight
+    );
+
+    cropCanvas.toBlob(async (blob) => {
+      if (!blob) {
+        console.error("Blob 생성 실패");
+        return;
+      }
+      try {
+        setIsLoding(true);
+        const payload = {
+          fileName: selectFile.name.replace(/\.[^/.]+$/, ".png"),
+          fileType: "image/png",
+        };
+
+        const presignResponse = await fetch(
+          "https://r97e0i6ui6.execute-api.ap-northeast-2.amazonaws.com/this-api/change",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        if (!presignResponse.ok) {
+          const errorText = await presignResponse.text();
+          console.error("Pre-signed URL 요청 실패:", errorText);
+          throw new Error("pre-signed URL 요청 실패");
+        }
+
+        const { uploadUrl, savedItem } = await presignResponse.json();
+
+        const putOptions = {
+          method: "PUT",
+          headers: { "Content-Type": "image/png" },
+          body: blob,
+        };
+
+        const uploadResponse = await fetch(uploadUrl, putOptions);
+        if (!uploadResponse.ok) {
+          const errorText = await uploadResponse.text();
+          console.error("S3 업로드 실패, 응답:", errorText);
+          throw new Error("S3 업로드 실패");
+        }
+
+        navigate(`/delivery/${savedItem.id}`);
+      } catch (error) {
+        console.error("파일 업로드 에러:", error);
+      }
+    }, "image/png");
+  };
+
   const handelCloseModal = () => {
     setIsShowCropModal(false);
   };
@@ -264,23 +362,20 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
           <canvas
             ref={baseCanvasRef}
             className="block"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
           />
           <canvas
             ref={overlayCanvasRef}
             className={`absolute top-0 left-0`}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
           />
         </div>
         <div className="p-5 flex justify-end">
           <ButtonOfCropModal
-            btnBackgroundColor={`bg-pointLogo`}
-            message={`자르기`}
-          />
-          <ButtonOfCropModal
             btnBackgroundColor={`bg-pointBlue`}
             message={`URL 생성하기`}
+            handleClick={handleCrop}
           />
           <ButtonOfCropModal
             btnBackgroundColor={`bg-inFodanger`}
@@ -306,6 +401,7 @@ function ButtonOfCropModal({ message, btnBackgroundColor, handleClick }) {
 
 CropModal.propTypes = {
   selectFile: PropTypes.object,
+  setIsLoding: PropTypes.func.isRequired,
   setIsShowCropModal: PropTypes.func,
 };
 
