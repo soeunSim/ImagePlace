@@ -193,8 +193,41 @@ export default function CropModal({ selectFile, setIsShowCropModal }) {
     }
   };
 
-  const handleMouseMove = () => {
+  const handleMouseMove = (event) => {
     if (!activeHandle || !resizeStart) return;
+    const rect = overlayCanvasRef.current.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    const deltaX = mouseX - resizeStart.mouseX;
+    const deltaY = mouseY - resizeStart.mouseY;
+    let newRect = { ...resizeStart.cropRect };
+
+    switch (activeHandle) {
+      case "tl":
+        newRect.x = resizeStart.cropRect.x + deltaX;
+        newRect.y = resizeStart.cropRect.y + deltaY;
+        newRect.width = resizeStart.cropRect.width - deltaX;
+        newRect.height = resizeStart.cropRect.height - deltaY;
+        break;
+      case "tr":
+        newRect.y = resizeStart.cropRect.y + deltaY;
+        newRect.width = resizeStart.cropRect.width + deltaX;
+        newRect.height = resizeStart.cropRect.height - deltaY;
+        break;
+      case "bl":
+        newRect.x = resizeStart.cropRect.x + deltaX;
+        newRect.width = resizeStart.cropRect.width - deltaX;
+        newRect.height = resizeStart.cropRect.height + deltaY;
+        break;
+      case "br":
+        newRect.width = resizeStart.cropRect.width + deltaX;
+        newRect.height = resizeStart.cropRect.height + deltaY;
+        break;
+      default:
+        break;
+    }
+
+    setCropRect(newRect);
   };
 
   const handelCloseModal = () => {
