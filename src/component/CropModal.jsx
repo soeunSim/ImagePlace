@@ -1,79 +1,80 @@
 import PropTypes from "prop-types";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function CropModal({ selectFile, setIsShowCropMadal }) {
-  const cropCanvasRef = useRef();
-  const CANVASWIDTH = 680;
-  const CANVASHEIGHT = 400;
+const CANVASWIDTH = 680;
+const CANVASHEIGHT = 400;
 
-  const handelCloseModal = () => {
-    setIsShowCropMadal(false);
-  };
+export default function CropModal({ selectFile, setIsShowCropModal }) {
+  const [imageSrc, setImageSrc] = useState(null);
+  const baseCanvasRef = useRef(null);
+  const originalImageRef = useRef(null);
+  const didInitRef = useRef(false);
+
   useEffect(() => {
     if (selectFile) {
-      const image = new Image();
-      const imageUrl = URL.createObjectURL(selectFile);
-      image.src = imageUrl;
-
-      image.onload = () => {
-        drowCanvas(image);
-        URL.revokeObjectURL(imageUrl);
-      };
+      const reader = new FileReader();
+      reader.onload = (event) => setImageSrc(event.target.result);
+      reader.readAsDataURL(selectFile);
     }
   }, [selectFile]);
 
-  const drowCanvas = (image) => {
-    const Canvas = cropCanvasRef.current;
-    const context = Canvas.getContext("2d");
-    const dpr = Math.min(window.devicePixelRatio, 3) || 1;
+  useEffect(() => {
+    if (!imageSrc || didInitRef.current) return;
+    const baseCanvas = baseCanvasRef.current;
+    const ctx = baseCanvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
 
-    Canvas.width = CANVASWIDTH;
-    Canvas.height = CANVASHEIGHT;
+    baseCanvas.width = CANVASWIDTH * dpr;
+    baseCanvas.height = CANVASHEIGHT * dpr;
 
-    const imageWidth = image.width;
-    const imageHeight = image.height;
+    ctx.scale(dpr, dpr);
 
-    let scaleFactor;
-    if (imageWidth > CANVASWIDTH || imageHeight > CANVASHEIGHT) {
-      scaleFactor =
-        imageWidth > imageHeight
-          ? CANVASWIDTH / imageWidth
-          : CANVASHEIGHT / imageHeight;
-    } else {
-      scaleFactor = 1;
-    }
-    const drawnWidth = imageWidth * scaleFactor;
-    const drawnHeight = imageHeight * scaleFactor;
+    baseCanvas.style.width = `${CANVASWIDTH}px`;
+    baseCanvas.style.height = `${CANVASHEIGHT}px`;
 
-    Canvas.width = CANVASWIDTH * dpr;
-    Canvas.height = CANVASHEIGHT * dpr;
-    context.scale(dpr, dpr);
+    const image = new Image();
+    image.crossOrigin = "Anonymous";
+    image.src = imageSrc;
+    originalImageRef.current = image;
 
-    Canvas.style.width = CANVASWIDTH + "px";
-    Canvas.style.height = CANVASHEIGHT + "px";
+    image.onload = () => {
+      const iw = image.width,
+        ih = image.height;
+      let scaleFactor = 1;
+      if (iw > CANVASWIDTH || ih > CANVASHEIGHT) {
+        scaleFactor = iw > ih ? CANVASWIDTH / iw : CANVASHEIGHT / ih;
+      }
+      const drawnWidth = iw * scaleFactor;
+      const drawnHeight = ih * scaleFactor;
+      const offsetX = (CANVASWIDTH - drawnWidth) / 2;
+      const offsetY = (CANVASHEIGHT - drawnHeight) / 2;
 
-    const offsetX = (CANVASWIDTH - drawnWidth) / 2;
-    const offsetY = (CANVASHEIGHT - drawnHeight) / 2;
+      ctx.fillStyle = "#313131";
+      ctx.fillRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
+      ctx.drawImage(
+        image,
+        0,
+        0,
+        iw,
+        ih,
+        offsetX,
+        offsetY,
+        drawnWidth,
+        drawnHeight
+      );
 
-    context.fillStyle = "#313131";
-    context.fillRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
-    context.drawImage(
-      image,
-      0,
-      0,
-      imageWidth,
-      imageHeight,
-      offsetX,
-      offsetY,
-      drawnWidth,
-      drawnHeight
-    );
+      didInitRef.current = true;
+    };
+  }, [imageSrc]);
+
+  const handelCloseModal = () => {
+    setIsShowCropModal(false);
   };
 
   return (
     <div className="absolute w-full h-dvh left-0 bg-gray-950/50">
       <div className="w-[680px] absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 bg-white rounded-md">
-        <canvas ref={cropCanvasRef}></canvas>
+        <canvas ref={baseCanvasRef}></canvas>
         <div className="p-5 flex justify-end">
           <ButtonOfCropModal
             btnBackgroundColor={`bg-pointLogo`}
@@ -107,7 +108,7 @@ function ButtonOfCropModal({ message, btnBackgroundColor, handleClick }) {
 
 CropModal.propTypes = {
   selectFile: PropTypes.object,
-  setIsShowCropMadal: PropTypes.func,
+  setIsShowCropModal: PropTypes.func,
 };
 
 ButtonOfCropModal.propTypes = {

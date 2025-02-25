@@ -10,13 +10,11 @@ import ToolTip from "./ToolTip";
 export default function ImageUpload() {
   const { setIsLoding } = useLodingStore();
   const [isShowToolTip, setIsShowToolTip] = useState(false);
-  const [isShowCropModal, setIsShowCropMadal] = useState(false);
+  const [isShowCropModal, setIsShowCropModal] = useState(false);
   const [selectFile, setSelectFile] = useState(null);
-
   const IMAGE_MAX_SIZE = 1 * 1024 * 1024;
   const navigate = useNavigate();
   const fileCheck = useRef(null);
-
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     const target = event.currentTarget;
@@ -38,7 +36,7 @@ export default function ImageUpload() {
     if (!selectFile) {
       alert("파일을 등록해주세요.");
     } else {
-      setIsShowCropMadal(true);
+      setIsShowCropModal(true);
     }
   };
 
@@ -148,7 +146,8 @@ export default function ImageUpload() {
       {isShowCropModal ? (
         <CropModal
           selectFile={selectFile}
-          setIsShowCropMadal={setIsShowCropMadal}
+          setIsLoding={setIsLoding}
+          setIsShowCropModal={setIsShowCropModal}
         />
       ) : (
         ""
