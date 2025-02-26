@@ -14,8 +14,8 @@ export default {
         inFodanger: "#D70200",
       },
       boxShadow: {
-        opacity6:
-          "0 1px 15px -3px rgb(0 0 0 / 0.6), 0 4px 6px -4px rgb(0 0 0 / 0.6)",
+        opacity9:
+          "0 1px 15px -3px rgb(0 0 0 / 0.9), 0 4px 6px -4px rgb(0 0 0 / 0.6)",
       },
       keyframes: {
         fadein: {

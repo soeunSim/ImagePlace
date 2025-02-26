@@ -124,7 +124,7 @@ export default function ImageUpload() {
             </div>
             <div className="flex w-1/2 flex-col px-8 py-8 relative ">
               <label
-                className="rounded-md flex-1 w-full px-4 py-2 bg-pointGray mb-3 shadow-opacity6 inline-block cursor-pointer"
+                className="rounded-md flex-1 w-full px-4 py-2 bg-pointGray mb-3 shadow-opacity9 inline-block cursor-pointer"
                 htmlFor="upLoadFile"
               >
                 <input
