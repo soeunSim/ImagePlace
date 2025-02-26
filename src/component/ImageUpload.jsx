@@ -12,9 +12,12 @@ export default function ImageUpload() {
   const [isShowToolTip, setIsShowToolTip] = useState(false);
   const [isShowCropModal, setIsShowCropModal] = useState(false);
   const [selectFile, setSelectFile] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+
   const IMAGE_MAX_SIZE = 1 * 1024 * 1024;
   const navigate = useNavigate();
   const fileCheck = useRef(null);
+
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     const target = event.currentTarget;
@@ -37,6 +40,37 @@ export default function ImageUpload() {
       alert("파일을 등록해주세요.");
     } else {
       setIsShowCropModal(true);
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  const handleDragStart = (event) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragEnd = (event) => {
+    event.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+
+    const file = event.dataTransfer.files[0];
+    const target = event.currentTarget;
+
+    if (file.size > IMAGE_MAX_SIZE) {
+      setIsShowToolTip(true);
+      target.value = "";
+      return;
+    } else if (file && file.size < IMAGE_MAX_SIZE) {
+      setSelectFile(file);
+      setIsDragOver(false);
+      alert("등록완료");
     }
   };
 
@@ -109,7 +143,15 @@ export default function ImageUpload() {
         <div className="mt-[35px]">
           <div className="flex items-center bg-pointGray rounded-md overflow-hidden">
             <div className="flex w-1/2 px-8 py-8 bg-gradient-to-bl from-pointLogo to-purple-500 ">
-              <label className="inline-block hover:bg-subBlue mx-auto my-0 rounded-md text-center border-dashed border-2 px-5 py-4 text-white text-sm cursor-pointer">
+              <label
+                className={`inline-block mx-auto my-0 rounded-md text-center border-dashed border-2 px-5 py-4 text-white text-sm cursor-pointer
+                    ${isDragOver ? "bg-subBlue" : "bg-transparent"}
+                  `}
+                onDragOver={handleDragOver}
+                onDragEnter={handleDragStart}
+                onDragLeave={handleDragEnd}
+                onDrop={handleDrop}
+              >
                 <input
                   type="file"
                   className="hidden"
