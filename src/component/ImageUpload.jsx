@@ -1,4 +1,8 @@
-import { faCropSimple, faUpload } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCropSimple,
+  faPlus,
+  faUpload,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
@@ -43,39 +47,10 @@ export default function ImageUpload() {
     }
   };
 
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
+  const handleUrlDelivery = async (fileArg) => {
+    const fileToUpload = fileArg || selectFile;
 
-  const handleDragStart = (event) => {
-    event.preventDefault();
-    setIsDragOver(true);
-  };
-
-  const handleDragEnd = (event) => {
-    event.preventDefault();
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-
-    const file = event.dataTransfer.files[0];
-    const target = event.currentTarget;
-
-    if (file.size > IMAGE_MAX_SIZE) {
-      setIsShowToolTip(true);
-      target.value = "";
-      return;
-    } else if (file && file.size < IMAGE_MAX_SIZE) {
-      setSelectFile(file);
-      setIsDragOver(false);
-      alert("등록완료");
-    }
-  };
-
-  const handleUrlDelivery = async () => {
-    if (!selectFile) {
+    if (!fileToUpload) {
       console.error("selectFile, null or undefined");
       return;
     }
@@ -84,8 +59,8 @@ export default function ImageUpload() {
 
     try {
       const payload = {
-        fileName: selectFile.name,
-        fileType: selectFile.type,
+        fileName: fileToUpload.name,
+        fileType: fileToUpload.type,
       };
 
       const presignResponse = await fetch(
@@ -110,9 +85,9 @@ export default function ImageUpload() {
       const putOptions = {
         method: "PUT",
         headers: {
-          "Content-Type": selectFile.type,
+          "Content-Type": fileToUpload.type,
         },
-        body: selectFile,
+        body: fileToUpload,
       };
 
       const uploadResponse = await fetch(uploadUrl, putOptions, savedItem);
@@ -126,6 +101,53 @@ export default function ImageUpload() {
       navigate(`/delivery/${savedItem.id}`);
     } catch (error) {
       console.error("파일 업로드 에러:", error);
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  const handleDragStart = (event) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragEnd = (event) => {
+    event.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDragADropImageChange = (event) => {
+    event.preventDefault();
+    const file = event.target.files[0];
+    const target = event.currentTarget;
+
+    if (file.size > IMAGE_MAX_SIZE) {
+      setIsShowToolTip(true);
+      target.value = "";
+      return;
+    } else if (file && file.size < IMAGE_MAX_SIZE) {
+      setSelectFile(file);
+
+      handleUrlDelivery(file);
+    }
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    const target = event.currentTarget;
+
+    if (file.size > IMAGE_MAX_SIZE) {
+      setIsShowToolTip(true);
+      target.value = "";
+      return;
+    } else if (file && file.size < IMAGE_MAX_SIZE) {
+      setSelectFile(file);
+      setIsDragOver(false);
+
+      handleUrlDelivery(file);
     }
   };
 
@@ -155,12 +177,13 @@ export default function ImageUpload() {
                 <input
                   type="file"
                   className="hidden"
+                  onChange={handleDragADropImageChange}
                 />
                 <FontAwesomeIcon
                   className="text-2xl pb-1"
                   icon={faUpload}
                 />
-                <p className="">클릭 혹은 파일을 이곳에 드롭하세요.</p>
+                <p className="">클릭 또는 파일을 이곳에 드롭하세요.</p>
                 <p className="">파일당 최대 1MB</p>
               </label>
             </div>
@@ -187,10 +210,11 @@ export default function ImageUpload() {
                   <span className="text-sm"> 자르기</span>
                 </button>
                 <button
-                  className="bg-pointBlue rounded-md px-4 py-1 ms-2 flex-1 text-white hover:bg-hoverBlue"
+                  className="bg-pointBlue rounded-md px-4 py-1 ms-2 flex-1 text-white hover:text-pointBlue hover:bg-white"
                   onClick={handleUrlDelivery}
                 >
-                  <span className="text-sm">URL 생성하기</span>
+                  <FontAwesomeIcon icon={faPlus} />
+                  <span className="text-sm"> URL 생성하기</span>
                 </button>
               </div>
               {isShowToolTip ? (
@@ -206,7 +230,7 @@ export default function ImageUpload() {
             </div>
           </div>
         </div>
-        <div className="h-[30px]"></div>
+        <div className="h-[20px]"></div>
       </div>
       {isShowCropModal ? (
         <CropModal

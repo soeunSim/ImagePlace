@@ -1,3 +1,5 @@
+import { faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -391,10 +393,16 @@ export default function CropModal({
 function ButtonOfCropModal({ message, btnBackgroundColor, handleClick }) {
   return (
     <button
-      className={`inline-block ms-1 rounded-md text-white px-2 py-1 ${btnBackgroundColor}`}
+      className={`flex items-center ms-1 text-sm rounded-md text-white px-3 py-[5px] ${btnBackgroundColor}`}
       onClick={handleClick}
     >
-      {message}
+      <div className="flex items-center justify-center h-4 w-4">
+        <FontAwesomeIcon
+          icon={message === "닫기" ? faXmark : faPlus}
+          className="h-3 w-3"
+        />
+      </div>
+      <span className="inline-block self-center">{message}</span>
     </button>
   );
 }
