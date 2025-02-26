@@ -1,4 +1,4 @@
-import { faCropSimple } from "@fortawesome/free-solid-svg-icons";
+import { faCropSimple, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
@@ -97,7 +97,7 @@ export default function ImageUpload() {
 
   return (
     <div className="relative w-full h-screen bg-mainBackcolor flex flex-col justify-center">
-      <div className="w-[680px] mx-auto my-0 animate-fadein">
+      <div className="w-[700px] mx-auto my-0 animate-fadein">
         <h1 className="text-center flex flex-col items-center relative">
           <img
             className="w-[150px]"
@@ -106,42 +106,65 @@ export default function ImageUpload() {
           />
           <span className="inline-block text-6xl title pt-3">ImagePlace</span>
         </h1>
-        <div className="flex mt-[30px] font-bold relative">
-          <input
-            className="border-2 border-pointGray shadow-md rounded-md font-bold 
-            block text-sm text-slate-500 flex-1 bg-white
-            file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm 
-            file:font-semibold file:bg-pointGray file:text-white
-            hover:file:bg-slate-800"
-            type="file"
-            accept=".png,.jpg,.jpeg"
-            ref={fileCheck}
-            onChange={handleImageChange}
-          />
-          <button
-            className="bg-pointLogo rounded-md px-4 py-1 mx-2 text-white"
-            onClick={handleShowModal}
-          >
-            <FontAwesomeIcon icon={faCropSimple} />
-          </button>
-          <button
-            className="bg-pointBlue rounded-md px-4 py-1 text-white hover:bg-hoverBlue"
-            onClick={handleUrlDelivery}
-          >
-            URL 생성
-          </button>
-          {isShowToolTip ? (
-            <ToolTip
-              isShowToolTip={isShowToolTip}
-              onClickHandleEvent={handleCloseToolTip}
-              icon={FontAwesomeIcon}
-              message={"제한용량은 1MB입니다."}
-            ></ToolTip>
-          ) : (
-            ""
-          )}
+        <div className="mt-[35px]">
+          <div className="flex items-center bg-pointGray rounded-md overflow-hidden">
+            <div className="flex w-1/2 px-8 py-8 bg-gradient-to-bl from-pointLogo to-purple-500 ">
+              <label className="inline-block hover:bg-subBlue mx-auto my-0 rounded-md text-center border-dashed border-2 px-5 py-4 text-white text-sm cursor-pointer">
+                <input
+                  type="file"
+                  className="hidden"
+                />
+                <FontAwesomeIcon
+                  className="text-2xl pb-1"
+                  icon={faUpload}
+                />
+                <p className="">클릭 혹은 파일을 이곳에 드롭하세요.</p>
+                <p className="">파일당 최대 1MB</p>
+              </label>
+            </div>
+            <div className="flex w-1/2 flex-col px-8 py-8 relative ">
+              <label
+                className="rounded-md flex-1 w-full px-4 py-2 bg-pointGray mb-3 shadow-opacity6 inline-block cursor-pointer"
+                htmlFor="upLoadFile"
+              >
+                <input
+                  id="upLoadFile"
+                  className=" file:hidden text-white text-sm min-w-1 cursor-pointer"
+                  type="file"
+                  accept=".png,.jpg,.jpeg"
+                  ref={fileCheck}
+                  onChange={handleImageChange}
+                />
+              </label>
+              <div className="flex justify-between">
+                <button
+                  className="bg-pointLogo rounded-md px-4 py-1 text-white flex-1"
+                  onClick={handleShowModal}
+                >
+                  <FontAwesomeIcon icon={faCropSimple} />
+                  <span className="text-sm"> 자르기</span>
+                </button>
+                <button
+                  className="bg-pointBlue rounded-md px-4 py-1 ms-2 flex-1 text-white hover:bg-hoverBlue"
+                  onClick={handleUrlDelivery}
+                >
+                  <span className="text-sm">URL 생성하기</span>
+                </button>
+              </div>
+              {isShowToolTip ? (
+                <ToolTip
+                  isShowToolTip={isShowToolTip}
+                  onClickHandleEvent={handleCloseToolTip}
+                  icon={FontAwesomeIcon}
+                  message={"제한용량은 1MB입니다."}
+                ></ToolTip>
+              ) : (
+                ""
+              )}
+            </div>
+          </div>
         </div>
-        <div className="h-[70px]"></div>
+        <div className="h-[30px]"></div>
       </div>
       {isShowCropModal ? (
         <CropModal
