@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const CANVASWIDTH = 680;
+const CANVASWIDTH = 700;
 const CANVASHEIGHT = 400;
 const HANDLE_SIZE = 10;
 const MIN_CROP_SIZE = 50;
@@ -359,7 +359,7 @@ export default function CropModal({
 
   return (
     <div className="absolute w-full h-dvh left-0 bg-gray-950/50">
-      <div className="w-[680px] absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 bg-white rounded-md">
+      <div className="w-[700px] absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 bg-white rounded-md">
         <div className={`relative w-[680px] h-[400px]`}>
           <canvas
             ref={baseCanvasRef}

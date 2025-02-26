@@ -48,7 +48,7 @@ export default function ImageUpload() {
   };
 
   const handleUrlDelivery = async (fileArg) => {
-    const fileToUpload = fileArg || selectFile;
+    const fileToUpload = selectFile || fileArg;
 
     if (!fileToUpload) {
       console.error("selectFile, null or undefined");
@@ -163,10 +163,11 @@ export default function ImageUpload() {
           <span className="inline-block text-6xl title pt-3">ImagePlace</span>
         </h1>
         <div className="mt-[35px]">
-          <div className="flex items-center bg-pointGray rounded-md overflow-hidden">
+          <div className="flex items-center bg-pointGray rounded-xl overflow-hidden">
             <div className="flex w-1/2 px-8 py-8 bg-gradient-to-bl from-pointLogo to-purple-500 ">
               <label
-                className={`inline-block mx-auto my-0 rounded-md text-center border-dashed border-2 px-5 py-4 text-white text-sm cursor-pointer
+                className={`inline-block mx-auto my-0 rounded-md text-center border-dashed border-2
+                  px-5 py-4 text-white text-sm cursor-pointer hover:bg-subBlue duration-200
                     ${isDragOver ? "bg-subBlue" : "bg-transparent"}
                   `}
                 onDragOver={handleDragOver}
@@ -189,7 +190,7 @@ export default function ImageUpload() {
             </div>
             <div className="flex w-1/2 flex-col px-8 py-8 relative ">
               <label
-                className="rounded-md flex-1 w-full px-4 py-2 bg-pointGray mb-3 shadow-opacity9 inline-block cursor-pointer"
+                className="rounded-md flex-1 w-full px-4 py-2 bg-pointGray mb-3 shadow-opacity9 inline-block cursor-pointer duration-200 hover:bg-pointLightGray"
                 htmlFor="upLoadFile"
               >
                 <input
@@ -203,15 +204,15 @@ export default function ImageUpload() {
               </label>
               <div className="flex justify-between">
                 <button
-                  className="bg-pointLogo rounded-md px-4 py-1 text-white flex-1"
+                  className="bg-pointLogo rounded-md px-4 py-1 text-white flex-1 duration-200 hover:text-pointLogo hover:bg-white"
                   onClick={handleShowModal}
                 >
                   <FontAwesomeIcon icon={faCropSimple} />
                   <span className="text-sm"> 자르기</span>
                 </button>
                 <button
-                  className="bg-pointBlue rounded-md px-4 py-1 ms-2 flex-1 text-white hover:text-pointBlue hover:bg-white"
-                  onClick={handleUrlDelivery}
+                  className="bg-pointBlue rounded-md px-4 py-1 ms-2 flex-1 text-white duration-200 hover:text-pointBlue hover:bg-white"
+                  onClick={() => handleUrlDelivery()}
                 >
                   <FontAwesomeIcon icon={faPlus} />
                   <span className="text-sm"> URL 생성하기</span>

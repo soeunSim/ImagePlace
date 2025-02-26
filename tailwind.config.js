@@ -7,6 +7,7 @@ export default {
         mainBackcolor: "#F7FCFF",
         pointLogo: "#2659EA",
         pointGray: "#313131",
+        pointLightGray: "#393939",
         pointBlue: "#6200EE",
         hoverBlue: "#1F2257",
         inputColor: "#EDEDED",
