@@ -18,20 +18,15 @@ export default function ImageUpload() {
   const [selectFile, setSelectFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
-  const IMAGE_MAX_SIZE = 1 * 1024 * 1024;
   const navigate = useNavigate();
   const fileCheck = useRef(null);
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    const target = event.currentTarget;
 
-    if (file.size > IMAGE_MAX_SIZE) {
-      setIsShowToolTip(true);
-      target.value = "";
-      return;
-    } else if (file && file.size < IMAGE_MAX_SIZE) {
+    if (file) {
       setSelectFile(file);
+      return;
     }
   };
 
@@ -137,48 +132,49 @@ export default function ImageUpload() {
 
   const handleDragOver = (event) => {
     event.preventDefault();
+    event.stopPropagation();
   };
 
   const handleDragStart = (event) => {
     event.preventDefault();
-    setIsDragOver(true);
+    event.stopPropagation();
+    if (selectFile) {
+      setIsShowToolTip(true);
+      return;
+    } else {
+      setIsDragOver(true);
+    }
   };
 
   const handleDragEnd = (event) => {
     event.preventDefault();
+    event.stopPropagation();
     setIsDragOver(false);
   };
 
   const handleDragADropImageChange = (event) => {
     event.preventDefault();
     const file = event.target.files[0];
-    const target = event.currentTarget;
 
-    if (file.size > IMAGE_MAX_SIZE) {
-      setIsShowToolTip(true);
-      target.value = "";
-      return;
-    } else if (file && file.size < IMAGE_MAX_SIZE) {
+    if (file) {
       setSelectFile(file);
-
       handleUrlDelivery(file);
+
+      return;
     }
   };
 
   const handleDrop = (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const file = event.dataTransfer.files[0];
-    const target = event.currentTarget;
 
-    if (file.size > IMAGE_MAX_SIZE) {
-      setIsShowToolTip(true);
-      target.value = "";
-      return;
-    } else if (file && file.size < IMAGE_MAX_SIZE) {
+    if (file) {
       setSelectFile(file);
       setIsDragOver(false);
 
       handleUrlDelivery(file);
+      return;
     }
   };
 
@@ -194,7 +190,7 @@ export default function ImageUpload() {
           <span className="inline-block text-6xl title pt-3">ImagePlace</span>
         </h1>
         <div className="mt-[35px]">
-          <div className="flex items-center bg-pointGray rounded-xl overflow-hidden">
+          <div className="flex items-center bg-pointGray rounded-xl overflow-hidden relative">
             <div className="flex w-1/2 px-8 py-8 bg-gradient-to-bl from-pointLogo to-purple-500 ">
               <label
                 className={`inline-block mx-auto my-0 rounded-md text-center border-dashed border-2
@@ -216,7 +212,7 @@ export default function ImageUpload() {
                   icon={faUpload}
                 />
                 <p className="">클릭 또는 파일을 이곳에 드롭하세요.</p>
-                <p className="">파일당 최대 2MB</p>
+                <p className="">파일당 최대 5MB</p>
               </label>
             </div>
             <div className="flex w-1/2 flex-col px-8 py-8 relative ">
@@ -249,17 +245,17 @@ export default function ImageUpload() {
                   <span className="text-sm"> URL 생성하기</span>
                 </button>
               </div>
-              {isShowToolTip ? (
-                <ToolTip
-                  isShowToolTip={isShowToolTip}
-                  onClickHandleEvent={handleCloseToolTip}
-                  icon={FontAwesomeIcon}
-                  message={"제한용량은 1MB입니다."}
-                ></ToolTip>
-              ) : (
-                ""
-              )}
             </div>
+            {isShowToolTip ? (
+              <ToolTip
+                isShowToolTip={isShowToolTip}
+                onClickHandleEvent={handleCloseToolTip}
+                icon={FontAwesomeIcon}
+                message={`우측 파일 등록창을 비워주세요.`}
+              ></ToolTip>
+            ) : (
+              ""
+            )}
           </div>
         </div>
         <div className="h-[20px]"></div>
