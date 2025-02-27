@@ -47,6 +47,35 @@ export default function ImageUpload() {
     }
   };
 
+  const reduceImageVolume = async (file, quality = 0.8) => {
+    const image = new Image();
+    image.src = URL.createObjectURL(file);
+
+    const result = await new Promise((resolve, reject) => {
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const ctx = canvas.getContext("2d");
+
+        ctx.drawImage(image, 0, 0);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("이미지 압축 결과 : 실패"));
+            }
+          },
+          file.type,
+          quality
+        );
+      };
+      image.onerror = () => reject(new Error("이미지 로드 결과 : 실패"));
+    });
+    return result;
+  };
+
   const handleUrlDelivery = async (fileArg) => {
     const fileToUpload = selectFile || fileArg;
 
@@ -58,6 +87,8 @@ export default function ImageUpload() {
     setIsLoding(true);
 
     try {
+      const compressedReduceImage = await reduceImageVolume(fileToUpload, 0.8);
+
       const payload = {
         fileName: fileToUpload.name,
         fileType: fileToUpload.type,
@@ -77,7 +108,7 @@ export default function ImageUpload() {
       if (!presignResponse.ok) {
         const errorText = await presignResponse.text();
         console.error("Pre-signed URL request failed / response:", errorText);
-        throw new Error("pre-signed URL 요청 실패");
+        throw new Error("pre-signed URL 요청 결과 : 실패");
       }
 
       const { uploadUrl, savedItem } = await presignResponse.json();
@@ -87,20 +118,20 @@ export default function ImageUpload() {
         headers: {
           "Content-Type": fileToUpload.type,
         },
-        body: fileToUpload,
+        body: compressedReduceImage,
       };
 
       const uploadResponse = await fetch(uploadUrl, putOptions, savedItem);
 
       if (!uploadResponse.ok) {
         const errorText = await uploadResponse.text();
-        console.error("S3 업로드 실패, 응답:", errorText);
-        throw new Error("S3 업로드 실패");
+        console.error("S3 업로드 결과 : 실패, 응답:", errorText);
+        throw new Error("S3 업로드 결과 : 실패");
       }
 
       navigate(`/delivery/${savedItem.id}`);
     } catch (error) {
-      console.error("파일 업로드 에러:", error);
+      console.error("파일 업로드 결과 : 에러", error);
     }
   };
 
@@ -185,7 +216,7 @@ export default function ImageUpload() {
                   icon={faUpload}
                 />
                 <p className="">클릭 또는 파일을 이곳에 드롭하세요.</p>
-                <p className="">파일당 최대 1MB</p>
+                <p className="">파일당 최대 2MB</p>
               </label>
             </div>
             <div className="flex w-1/2 flex-col px-8 py-8 relative ">
