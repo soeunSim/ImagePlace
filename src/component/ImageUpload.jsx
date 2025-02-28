@@ -18,6 +18,7 @@ export default function ImageUpload() {
   const [selectFile, setSelectFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
+  const IMAGE_DECREASE_CONDITION_SIZE = 2 * 1024 * 1024;
   const navigate = useNavigate();
   const fileCheck = useRef(null);
 
@@ -82,7 +83,10 @@ export default function ImageUpload() {
     setIsLoding(true);
 
     try {
-      const compressedReduceImage = await reduceImageVolume(fileToUpload, 0.8);
+      const compressedReduceImage =
+        fileToUpload.size > IMAGE_DECREASE_CONDITION_SIZE
+          ? await reduceImageVolume(fileToUpload, 0.8)
+          : fileToUpload;
 
       const payload = {
         fileName: fileToUpload.name,
@@ -212,7 +216,7 @@ export default function ImageUpload() {
                   icon={faUpload}
                 />
                 <p className="">클릭 또는 파일을 이곳에 드롭하세요.</p>
-                <p className="">파일당 최대 5MB</p>
+                <p className="">png, jpg, jpeg 첨부가능</p>
               </label>
             </div>
             <div className="flex w-1/2 flex-col px-8 py-8 relative ">
