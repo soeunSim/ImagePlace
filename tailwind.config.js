@@ -12,7 +12,7 @@ export default {
         hoverBlue: "#1F2257",
         inputColor: "#EDEDED",
         subBlue: "#99A8FF",
-        inFodanger: "#D70200",
+        inFodanger: "#be123c",
       },
       boxShadow: {
         opacity9:
@@ -37,10 +37,17 @@ export default {
             top: "0",
           },
         },
+        changeBg: {
+          "0%": { backgroundColor: "#313131" },
+          "20%": { backgroundColor: "#6200EE" },
+          "80%": { backgroundColor: "#6200EE" },
+          "100%": { backgroundColor: "#313131" },
+        },
       },
       animation: {
         fadein: "fadein 1.2s",
         upAndDown_one: "upAndDown_one 1.5s",
+        changeBg: "changeBg 3s infinite",
       },
     },
   },

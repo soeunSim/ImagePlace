@@ -1,4 +1,4 @@
-import { faClipboard } from "@fortawesome/free-solid-svg-icons";
+import { faClipboard, faHouse } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import { useEffect, useRef, useState } from "react";
@@ -102,7 +102,7 @@ export default function UrlDelivery() {
       <div className="w-[700px] mx-auto my-0">
         <div className="pt-[2rem]">
           <h2 className="text-center title pb-4 text-4xl font-bold text-pointBlue">
-            URL creation completed!
+            🎉URL creation completed!🎉
           </h2>
           <div className="rounded-md overflow-hidden relative w-[700px] h-[400px]">
             <canvas
@@ -112,9 +112,9 @@ export default function UrlDelivery() {
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-pointGray rounded-md"></div>
           </div>
           <div className="mt-2">
-            <div className="bg-pointBlue rounded-md text-sm text-white px-5 py-3 mb-2">
-              현재 발급 된 Page URL 주소를 기억해야 재 방문이 가능합니다.
-              {`(최소 보관일 n일).`}
+            <div className="bg-inFodanger rounded-md text-sm text-white px-5 py-3 mb-2">
+              현재 발급 된 Page URL 주소를 기억해주세요.
+              {` (만료기간은 등록 시점으로부터 5일입니다.) `}
             </div>
             {!urlData ? (
               <>
@@ -125,6 +125,7 @@ export default function UrlDelivery() {
             ) : (
               <>
                 <UrlList
+                  AnimationBgColor={`animate-changeBg`}
                   labelMessage={`Page URL`}
                   inputValueType={`${urlData.page_url}`}
                 />
@@ -145,7 +146,8 @@ export default function UrlDelivery() {
             className="bg-pointBlue font-bold rounded-md text-xs px-4 py-2 text-white"
             onClick={handleBackMain}
           >
-            메인으로
+            <FontAwesomeIcon icon={faHouse} />
+            <span> 메인으로</span>
           </button>
         </div>
       </div>
@@ -162,7 +164,7 @@ function SkeletonUrlList() {
   );
 }
 
-function UrlList({ labelMessage, inputValueType }) {
+function UrlList({ AnimationBgColor, labelMessage, inputValueType }) {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(inputValueType);
@@ -174,7 +176,10 @@ function UrlList({ labelMessage, inputValueType }) {
 
   return (
     <div className="pb-2 flex relative">
-      <label className="w-[110px] me-2 text-center text-xs inline-block bg-pointGray font-bold rounded-md px-4 py-1 text-white">
+      <label
+        className={`w-[110px] me-2 text-center text-xs inline-block font-bold rounded-md px-4 py-1 text-white 
+      ${AnimationBgColor ? "animate-changeBg" : "bg-pointGray"}`}
+      >
         {labelMessage}
       </label>
       <input
@@ -193,6 +198,7 @@ function UrlList({ labelMessage, inputValueType }) {
 }
 
 UrlList.propTypes = {
+  AnimationBgColor: PropTypes.string,
   labelMessage: PropTypes.string.isRequired,
   inputValueType: PropTypes.string,
 };
