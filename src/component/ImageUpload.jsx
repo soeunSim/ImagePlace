@@ -43,7 +43,7 @@ export default function ImageUpload() {
     }
   };
 
-  const reduceImageVolume = async (file, quality = 0.8) => {
+  const reduceImageVolume = async (file, quality = 0.7) => {
     const image = new Image();
     image.src = URL.createObjectURL(file);
 
@@ -85,7 +85,7 @@ export default function ImageUpload() {
     try {
       const compressedReduceImage =
         fileToUpload.size > IMAGE_DECREASE_CONDITION_SIZE
-          ? await reduceImageVolume(fileToUpload, 0.8)
+          ? await reduceImageVolume(fileToUpload, 0.7)
           : fileToUpload;
 
       const payload = {
