@@ -183,7 +183,17 @@ export default function ImageUpload() {
   };
 
   return (
-    <div className="relative w-full h-screen bg-mainBackcolor flex flex-col justify-center">
+    <div
+      className="relative w-full h-screen bg-mainBackcolor flex flex-col justify-center"
+      onDragOver={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      }}
+    >
       <div className="w-[700px] mx-auto my-0 animate-fadein">
         <h1 className="text-center flex flex-col items-center relative">
           <img
