@@ -35,7 +35,7 @@ export default function UrlDelivery() {
     setIsLoding(false);
   }, [id, setIsLoding]);
 
-  const CANVASWIDTH = 680;
+  const CANVASWIDTH = 700;
   const CANVASHEIGHT = 400;
 
   useEffect(() => {
@@ -99,20 +99,30 @@ export default function UrlDelivery() {
 
   return (
     <div className="w-full h-screen bg-mainBackcolor">
-      <div className="w-[680px] mx-auto my-0">
+      <div className="w-[700px] mx-auto my-0">
         <div className="pt-[2rem]">
           <h2 className="text-center title pb-4 text-4xl font-bold text-pointBlue">
             URL creation completed!
           </h2>
-          <div className="rounded-md overflow-hidden">
-            <canvas ref={deliveryCanvasRef}></canvas>
+          <div className="rounded-md overflow-hidden relative w-[700px] h-[400px]">
+            <canvas
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 duration-200"
+              ref={deliveryCanvasRef}
+            ></canvas>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-pointGray rounded-md"></div>
           </div>
           <div className="mt-2">
             <div className="bg-pointBlue rounded-md text-sm text-white px-5 py-3 mb-2">
               현재 발급 된 Page URL 주소를 기억해야 재 방문이 가능합니다.
               {`(최소 보관일 n일).`}
             </div>
-            {urlData && (
+            {!urlData ? (
+              <>
+                <SkeletonUrlList />
+                <SkeletonUrlList />
+                <SkeletonUrlList />
+              </>
+            ) : (
               <>
                 <UrlList
                   labelMessage={`Page URL`}
@@ -139,6 +149,15 @@ export default function UrlDelivery() {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function SkeletonUrlList() {
+  return (
+    <div className="pb-2 flex relative">
+      <span className="w-[110px] h-[24px] me-2 text-center text-xs inline-block bg-inputColor font-bold rounded-md px-4 py-1 text-white"></span>
+      <div className="h-[24px] bg-inputColor rounded-md flex-1 text-xs px-3"></div>
     </div>
   );
 }
