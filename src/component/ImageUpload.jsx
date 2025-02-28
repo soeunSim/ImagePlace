@@ -10,12 +10,14 @@ import { useNavigate } from "react-router";
 
 import useLodingStore from "../store/useLodingStore";
 import CropModal from "./CropModal";
+import HowToUseModal from "./HowToUseModal";
 import ToolTip from "./ToolTip";
 
 export default function ImageUpload() {
   const { setIsLoding } = useLodingStore();
   const [isShowToolTip, setIsShowToolTip] = useState(false);
   const [isShowCropModal, setIsShowCropModal] = useState(false);
+  const [isShowHowToUseModal, setIsShowHowToModal] = useState(false);
   const [selectFile, setSelectFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -183,6 +185,10 @@ export default function ImageUpload() {
     }
   };
 
+  const handleShowHowToUse = () => {
+    setIsShowHowToModal(true);
+  };
+
   return (
     <div
       className="relative w-full h-screen bg-mainBackcolor flex flex-col justify-center"
@@ -206,7 +212,10 @@ export default function ImageUpload() {
         </h1>
         <div className="mt-[30px]">
           <div className="text-right text-sm flex items-center justify-end mb-2">
-            <button className="inline-block bg-pointLogo rounded-full px-3 py-1 text-white text-sm border border-pointLogo hover:bg-white hover:text-pointLogo">
+            <button
+              className="inline-block bg-pointLogo rounded-full px-3 py-1 text-white text-sm border border-pointLogo hover:bg-white hover:text-pointLogo"
+              onClick={handleShowHowToUse}
+            >
               <FontAwesomeIcon icon={faCircleQuestion} />
               <span className="ps-1">이용안내</span>
             </button>
@@ -290,6 +299,7 @@ export default function ImageUpload() {
       ) : (
         ""
       )}
+      {isShowHowToUseModal ? <HowToUseModal /> : ""}
     </div>
   );
 }
