@@ -1,4 +1,5 @@
 import {
+  faCircleQuestion,
   faCropSimple,
   faPlus,
   faUpload,
@@ -203,7 +204,13 @@ export default function ImageUpload() {
           />
           <span className="inline-block text-6xl title pt-3">ImagePlace</span>
         </h1>
-        <div className="mt-[35px]">
+        <div className="mt-[30px]">
+          <div className="text-right text-sm flex items-center justify-end mb-2">
+            <button className="inline-block bg-pointLogo rounded-full px-3 py-1 text-white text-sm border border-pointLogo hover:bg-white hover:text-pointLogo">
+              <FontAwesomeIcon icon={faCircleQuestion} />
+              <span className="ps-1">이용안내</span>
+            </button>
+          </div>
           <div className="flex items-center bg-pointGray rounded-xl overflow-hidden relative">
             <div className="flex w-1/2 px-8 py-8 bg-gradient-to-bl from-pointLogo to-purple-500 ">
               <label
@@ -272,7 +279,7 @@ export default function ImageUpload() {
             )}
           </div>
         </div>
-        <div className="h-[20px]"></div>
+        <div className="h-[15px]"></div>
       </div>
       {isShowCropModal ? (
         <CropModal
