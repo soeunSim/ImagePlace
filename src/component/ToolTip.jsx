@@ -11,7 +11,7 @@ export default function ToolTip({
     <div
       className={
         isShowToolTip
-          ? "flex justify-between text-xl rounded-2xl text-white absolute w-[550px] px-6 py-[30px] bg-inFodanger transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+          ? "flex justify-between text-xl rounded-2xl text-white absolute w-[550px] px-6 py-[30px] bg-inFodanger transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 animate-opacity duration-100"
           : "none"
       }
     >

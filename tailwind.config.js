@@ -43,11 +43,20 @@ export default {
           "80%": { backgroundColor: "#6200EE" },
           "100%": { backgroundColor: "#313131" },
         },
+        opacity: {
+          "0%": {
+            opacity: "0",
+          },
+          "100%": {
+            opacity: "1",
+          },
+        },
       },
       animation: {
         fadein: "fadein 1.2s",
         upAndDown_one: "upAndDown_one 1.5s",
         changeBg: "changeBg 3s infinite",
+        opacity: "opacity 0.4s",
       },
     },
   },

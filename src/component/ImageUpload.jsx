@@ -210,7 +210,7 @@ export default function ImageUpload() {
           />
           <span className="inline-block text-6xl title pt-3">ImagePlace</span>
         </h1>
-        <div className="mt-[30px]">
+        <div className="mt-[20px]">
           <div className="text-right text-sm flex items-center justify-end mb-2">
             <button
               className="inline-block bg-pointLogo rounded-full px-3 py-1 text-white text-sm border border-pointLogo hover:bg-white hover:text-pointLogo"
@@ -288,7 +288,7 @@ export default function ImageUpload() {
             )}
           </div>
         </div>
-        <div className="h-[15px]"></div>
+        <div className="h-[20px]"></div>
       </div>
       {isShowCropModal ? (
         <CropModal
@@ -299,7 +299,11 @@ export default function ImageUpload() {
       ) : (
         ""
       )}
-      {isShowHowToUseModal ? <HowToUseModal /> : ""}
+      {isShowHowToUseModal ? (
+        <HowToUseModal closeHowToModal={setIsShowHowToModal} />
+      ) : (
+        ""
+      )}
     </div>
   );
 }
