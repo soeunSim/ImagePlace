@@ -1,4 +1,8 @@
-import { faClipboard, faHouse } from "@fortawesome/free-solid-svg-icons";
+import {
+  faClipboard,
+  faHouse,
+  faLink,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import { useEffect, useRef, useState } from "react";
@@ -97,6 +101,15 @@ export default function UrlDelivery() {
     navigate(`/`);
   };
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(`${urlData.page_url}`);
+      alert("클립보드에 복사되었습니다!");
+    } catch (error) {
+      alert("복사에 실패했습니다: " + error);
+    }
+  };
+
   return (
     <div className="w-full h-screen bg-mainBackcolor">
       <div className="w-[700px] mx-auto my-0">
@@ -104,17 +117,33 @@ export default function UrlDelivery() {
           <h2 className="text-center title pb-4 text-4xl font-bold text-pointBlue">
             🎉URL creation completed!🎉
           </h2>
+          {!urlData ? (
+            <div className="w-full h-7 bg-inputColor rounded-md mb-2"></div>
+          ) : (
+            <div className="flex mb-2">
+              <button
+                className="w-[110px] bg-pointLogo px-2 me-2 text-white text-xs rounded-md"
+                onClick={handleCopy}
+              >
+                <FontAwesomeIcon icon={faLink} /> PageUrl Copy
+              </button>
+              <input
+                className="bg-pointGray rounded-md flex-1 text-xs text-white px-3 h-7"
+                value={`${urlData.page_url}`}
+                readOnly
+              />
+            </div>
+          )}
           <div className="rounded-md overflow-hidden relative w-[700px] h-[400px]">
             <canvas
               className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 duration-200"
               ref={deliveryCanvasRef}
             ></canvas>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-pointGray rounded-md"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[698px] h-[400px] bg-pointGray rounded-md"></div>
           </div>
           <div className="mt-2">
-            <div className="bg-inFodanger rounded-md text-sm text-white px-5 py-3 mb-2">
-              현재 발급 된 Page URL 주소를 기억해주세요.
-              {` (만료기간은 등록 시점으로부터 5일입니다.) `}
+            <div className="bg-pointBlue rounded-md text-sm text-white px-4 py-3 mb-2">
+              {`⚠️ 등록하신 이미지 만료기간은 7일 입니다. `}
             </div>
             {!urlData ? (
               <>
@@ -125,11 +154,6 @@ export default function UrlDelivery() {
             ) : (
               <>
                 <UrlList
-                  AnimationBgColor={`animate-changeBg`}
-                  labelMessage={`Page URL`}
-                  inputValueType={`${urlData.page_url}`}
-                />
-                <UrlList
                   labelMessage={`Image URL`}
                   inputValueType={`${urlData.image_url}`}
                 />
@@ -137,11 +161,15 @@ export default function UrlDelivery() {
                   labelMessage={`Mark UP`}
                   inputValueType={`[Image](${urlData.image_url})`}
                 />
+                <UrlList
+                  labelMessage={`HTML`}
+                  inputValueType={`<a href="${urlData.image_url}" alt="Image">`}
+                />
               </>
             )}
           </div>
         </div>
-        <div className="text-right pt-1">
+        <div className="text-right">
           <button
             className="bg-pointBlue font-bold rounded-md text-xs px-4 py-2 text-white"
             onClick={handleBackMain}
@@ -164,7 +192,7 @@ function SkeletonUrlList() {
   );
 }
 
-function UrlList({ AnimationBgColor, labelMessage, inputValueType }) {
+function UrlList({ labelMessage, inputValueType }) {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(inputValueType);
@@ -177,13 +205,12 @@ function UrlList({ AnimationBgColor, labelMessage, inputValueType }) {
   return (
     <div className="pb-2 flex relative">
       <label
-        className={`w-[110px] me-2 text-center text-xs inline-block font-bold rounded-md px-4 py-1 text-white 
-      ${AnimationBgColor ? "animate-changeBg" : "bg-pointGray"}`}
+        className={`w-[110px] me-2 text-center text-xs inline-block font-bold rounded-md px-4 py-1 text-white bg-pointGray`}
       >
         {labelMessage}
       </label>
       <input
-        className="bg-inputColor rounded-md flex-1 text-xs px-3"
+        className="bg-inputColor rounded-md flex-1 text-xs px-3 pe-6 truncate"
         value={inputValueType}
         readOnly
       />
@@ -198,7 +225,6 @@ function UrlList({ AnimationBgColor, labelMessage, inputValueType }) {
 }
 
 UrlList.propTypes = {
-  AnimationBgColor: PropTypes.string,
   labelMessage: PropTypes.string.isRequired,
   inputValueType: PropTypes.string,
 };

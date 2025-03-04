@@ -13,6 +13,7 @@ export default {
         inputColor: "#EDEDED",
         subBlue: "#99A8FF",
         inFodanger: "#be123c",
+        clipCopyBtn: "#00A6ED",
       },
       boxShadow: {
         opacity9:
