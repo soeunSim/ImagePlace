@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { HashRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import App from "./App.jsx";
 import Loading from "./component/Loading.jsx";
@@ -10,7 +10,7 @@ import "./static/fonts/font.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <HashRouter>
+    <BrowserRouter>
       <Routes>
         <Route
           path="/delivery/:id"
@@ -25,6 +25,6 @@ createRoot(document.getElementById("root")).render(
           element={<App />}
         />
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   </StrictMode>
 );
