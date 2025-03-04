@@ -15,8 +15,9 @@ Notion과 같은 협업 도구를 사용하다 보면 이미지 업로드 용량
 <br/>
 
 # 2. 주요 기능 및 환경 소개
-
-![image 3.png](https://github.com/user-attachments/assets/1e6481c8-e8da-4b74-a7ca-90a8ba0643e8)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1e6481c8-e8da-4b74-a7ca-90a8ba0643e8">
+</p>
 
 ## 2.1 핵심 기능 소개
 
@@ -67,8 +68,9 @@ Amazon S3에서 이미지를 저장하기 위해 제공하는 라이브러리 �
 먼저, 사용자가 서비스를 통해 버킷으로 파일 업로드할 때, S3에게 요청을 허용할 수 있도록 파일 업로드를 할 최소한의 설정과 IAM 정책(`s3:PutObject` , `s3:getObject` ) 그리고 CORS(Cross-Origin Resource Sharing) 규칙 등을 설정이 필요합니다.
 
 위에 언급한 설정들을 통해 S3 저장소에 정상적으로 업로드가 되는 것을 확인했으나, **예상치 못 한 문제를 발생**하였습니다.
-
-![image.png](https://github.com/user-attachments/assets/12c9f9f3-3df2-496d-a8c6-6d076449c829)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/12c9f9f3-3df2-496d-a8c6-6d076449c829">
+</p>
 
 ### **[⚠️ 발생한 문제 ]**
 
@@ -80,13 +82,13 @@ Amazon S3에서 이미지를 저장하기 위해 제공하는 라이브러리 �
 이미지를 S3에 보내기 전, 중복을 피할 수 있는 고유한 파일 명으로 변경하고 그 URL을 받는 방식으로 진행하면, 1번과 2번 문제를 동시에 해결할 수 있다고 판단하였습니다.
 <br/>
 
-<aside>
+<br/>  
 
-**중복은 그만, 고유성을 보장하는 UUID!**<br/>
-UUID(Universally Unique Identifier)는 **128비트의 고유 식별자**로,
-네트워크 상에서 고유한 id, 또는 값을 만들기 위한 표준 규약으로 정의합니다.
+> **중복은 그만, 고유성을 보장하는 UUID** <br/>
+> UUID(Universally Unique Identifier)는 **128비트의 고유 식별자**로,
+> 네트워크 상에서 고유한 id, 또는 값을 만들기 위한 표준 규약으로 정의합니다.
 
-</aside>
+<br/>
 
 파일명을 이 UUID로 교체하면 좋겠다는 생각했고 등록 시 받을 수 있는 file 객체 내부에 name이라는 키가 있는 것을 확인했습니다. 해당 key 값에 바로 UUID를 할당하는 방식으로 처리할 수 있지 않을까 생각하여 `file.name` = `UUID4()`로 값을 할당해 변경해주었지만 type err를 마주하였습니다. 할당만 했을 뿐이라 console.log로 UUID4()값을 찍어보았지만 UUID의 값에는 이상이 없는 점을 확인 하였습니다.
 
@@ -105,10 +107,12 @@ UUID(Universally Unique Identifier)는 **128비트의 고유 식별자**로,
 
 ### **[⚠️추가 발생한 문제]**
 
-1. **클라이언트에서 직접 이미지를 등록하는 방식은 보안 상 권장되지 않았습니다.**
+> 1. **클라이언트에서 직접 이미지를 등록하는 방식은 보안 상 권장되지 않았습니다.** <br/>
    클라이언트 코드에 API 키나 자격 증명이 포함될 경우, 이를 탈취 당해 악용할 수 있습니다.
 
 이 문제를 해결할 수 있는 방법으로 **Aws Pre-signed URL**이 적절한 답임을 알게 되었습니다.
+
+<br/>
 
 ## 3-1-(C) Aws Pre-signedURL ?
 
@@ -132,18 +136,14 @@ pre-signed URL을 적용한 흐름에서 볼 수 있듯이**,** 클라이언트�
 
 ### [⚠️번외 문제] DNS 관련 오류 및 해결
 
-1. **Lambda를 통해 S3 업로드가 에러 코드 없이 등록이 잘 되는 것과는 별개로 발급 받은 URL링크가 연결할 수 없다는 현상을 발견했습니다.**
-
-<aside>
-
-<br/>
-
-**[홈페이지 자체 오류 코드]**<br/>
-"dns_probe_finished_nxdomain" → DNS에서 해당 도메인을 찾지 못한다는 의미
+> 1. **Lambda를 통해 S3 업로드가 에러 코드 없이 등록이 잘 되지만 발급 받은 URL링크를 연결할 수 없다는 현상을 발견했습니다.** <br/>
+> **[오류 코드 내용]** "dns_probe_finished_nxdomain" → DNS에서 해당 도메인을 찾지 못한다는 의미
 
 </aside>
 
-![image.png](https://github.com/user-attachments/assets/e8cc9ffc-47ef-422c-a923-dcffcf9bd7be)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e8cc9ffc-47ef-422c-a923-dcffcf9bd7be">
+</p>
 
 CloudFront는 CDN(콘텐츠 전송 네트워크)로 Lambda 함수는 파일이 업로드 될 S3 버킷 안에 있는 이미지의 위치를 기반으로 미리 최종 접근 URL을 생성할 때 CloudFront 도메인을 사용합니다.
 
@@ -152,49 +152,9 @@ CloudFront는 CDN(콘텐츠 전송 네트워크)로 Lambda 함수는 파일이 �
 **💻 확인 리스트**
 
 - [ ❌ ] CloudFront에 S3 버킷이 잘 연결 되어있는지 확인.
-- [ ❌ ] CloudFront 배포의 Origin Path(경로) 확인.
-  - Origin Path를 빈 값 설정 후 S3 버킷에 위치한 폴더(`upload/`)를 읽을 수 있도록 세팅했는지.
-- [ ❌ ] 캐시 무효화(invalidation) 작업 시도
-  - 작업을 시도 → 버킷의 객체 경로 지정해서 추가 시도 → 변화 없음.
-    ![image.png](attachment:d910277e-c469-4202-8ea8-10130e83bf11:image.png)
-- [ ❌ ] Cloudfront 에 ACM 인증서가 연결되어있는지?
-  - Cloudfront 배포를 하기 위해선 미국 버지니아 동부 지역의 SSL 인증서가 필수 입니다!
-  - 해당 SSL인증서에 \*.myimagePlace.com (와일드 카드 사용한 도메인으로 인증 함)
-- [ ❌ ] Alternate Domain Names (CNAMEs) 확인
-  - 대체 도메인에 `img.myimageplace.com`과 `*.myimageplace.com`이 등록되어 있는지?
-- [ ✅ ] CloudFront와 Route53발급 받은 호스팅의 DNS 레코드 주소 일치하는지 확인.
+- [ ❌니다.
 
-![최종확인.png](https://github.com/user-attachments/assets/57de108f-78c7-4ce0-87f6-1ded8a2a6571)
 
-Rotue53에서 받은 도메인의 레코드값(NS) 과 cloudFront에 등록 된 도메인의 이름 서버 주소가 다른 문제였으며 이를 일치시켜주어야 정상적으로 DNS가 연결됨을 확인 할 수 있었습니다.
-
-<br/>
-
-## 3-2-(A) 이미지 해상도는 그대로 두고 용량만 줄일 수 있는가
-
-먼저, 유사 서비스들이 어떻게 용량 문제를 해결하고 있는지 조사를 진행했습니다.
-
-1MB에서 8.5MB 사이의 고해상도 이미지를 준비해 테스트한 결과, A 사이트에서는 4.5MB 이상의 이미지 등록 시 자동으로 압축을 수행하는 반면, B와 C 사이트에서는 별도의 이미지 용량 압축 기능은 제공하지 않았으며, 5MB 이상의 이미지를 등록할 경우 10초 이상 Lazy Loding 현상이 발생하는 점을 발견했습니다.
-
-이러한 결과를 토대로, **고용량 등록에 대응해 이미지 용량 압축을 구현하는 것이 사용자 경험 측면에서 유리하다고 판단**하여 기능 개발을 시작하게 되었습니다.
-
-**[ 💁사이트 별 용량 변화 테스트 ]**
-
-|                | A. Imgur         | B. PostImage | C. imaebb |
-| -------------- | ---------------- | ------------ | --------- |
-| 용량 압축 여부 | ✅ 8.5MB → 4.7MB | ❌           | ❌        |
-| 지연 시간      | 6초              | 12초         | 10초      |
-
-본격적으로 용량 압축하는 방안을 검토하던 중, browser-image-compression과 Compressor.js라는 라이브러리를 발견했고 두 라이브러리 모두 공식 문서와 소스 코드를 통해 `canvas`태그를 활용하여 용량 압축을 지원한다는 점을 확인할 수 있었습니다. (참고로, browser-image-compression은 2021년에 `canvas` 기반 방식에서 UZIP 방식으로 변경되었다고 명시되어 있습니다.)
-
-핵심은 **Canvas 태그를 활용하여 해상도는 유지한 채 이미지의 용량만 줄일 수 있다는 것**입니다. 이를 위해 `.toDataURL()`과 `.toBlob()` 두 가지 방식이 있으며, 이 두 매서드의 파라미터 중 **이미지 압축 품질(quality)을 조절**하는 것이 용량을 줄이는 중요한 요소입니다.
-
-<aside>
-
-**quality가 다루는 손실 압축 방식 이란?**
-픽셀 수를 줄이는 것이 아니라, 각 픽셀에 저장된 정보의 일부를 의도적으로 버려 파일 크기를 줄이는 방식이다.
-
-</aside>
 
 **[ 💁매서드 비교 ]**
 
@@ -205,6 +165,7 @@ Rotue53에서 받은 도메인의 레코드값(NS) 과 cloudFront에 등록 된 
 | 특징      | Base64로 인코딩된 데이터는 이미지 크기가 커지나, 텍스트 형식으로 다룰 수 있어 **처리 속도 면에서는 빠름**. | 네트워크 전송이나 파일 저장에 유리한 Blob 데이터로 더 **큰 이미지 파일을 처리하는데 효율 적**임. |
 
 공식 문서에서도 큰 이미지의 경우 성능 문제를 고려해 canvas.toBlob() 사용을 권장하고 있거니와 사용자가 고해상도 이미지를 등록할 가능성을 감안하여, 본 프로젝트에서는 **canvas.toBlob() 방식을 채택**하기로 결정하였습니다.
+<br/>
 <br/>
 
 ## 3-2-(B) 용량이 얼마나 줄었을까?
@@ -268,10 +229,13 @@ Canvas에서 사각형을 그리려면 x, y 좌표와 width, height, 총 4가지
 
 ![image.png](https://github.com/user-attachments/assets/5998bc82-e550-4cdd-9f61-581009093903)
 
+<br/>
+
 여기서 가장 핵심 부분은 지워진 영역 각 네 모서리에 들어갈 작은 사각형 **”핸들”** 입니다. 이 핸들을 가지고 사용자가 지워진 영역을 제어할 수 있게 만들어야 합니다. 우선 이 작은 사각형 핸들의 위치부터 구해보았습니다.
 
 ![image.png](https://github.com/user-attachments/assets/637a9af7-85a8-4b40-98f9-d7bfe0ecd502)
 
+<br/>
 <br/>
 
 ## 3-3-(C) Handle을 통해 지정 영역을 조정할 수 있게 움직임 넣기
