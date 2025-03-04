@@ -1,8 +1,361 @@
-# React + Vite
+# 1. I**magePlace 는?**
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/da757d51-cdc7-4c90-ab25-bd2a93a14f59">
+</p>
 
-Currently, two official plugins are available:
+## 🖼 ImagePlace란?
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+ImagePlace는 **단기간 이미지를 저장하고 URL을 제공하는 이미지 호스팅 서비스**입니다.
+
+Notion과 같은 협업 도구를 사용하다 보면 이미지 업로드 용량 제한 때문에 원하는 이미지를 자유롭게 활용하기 어려웠던 경험이 있으실 겁니다. 이럴 때 필요한 것은 이미지 호스팅 서비스이지만, **등록된 이미지가 다른 사람에게 노출되지 않고, 고용량 이미지를 압축 후 저장하며, 단기간 보관**되어 신경 쓸 필요 없는 서비스는 쉽게 찾기 어려웠습니다.
+
+이러한 **문제점을 직접 해결**해보고자 이미지 호스팅 프로젝트를 시작하게 되었습니다.
+
+<br/>
+
+# 2. 주요 기능 및 환경 소개
+
+![image 3.png](https://github.com/user-attachments/assets/1e6481c8-e8da-4b74-a7ca-90a8ba0643e8)
+
+## 2.1 핵심 기능 소개
+
+- 등록 후 **5일 동안 이미지 보관 & URL 제공** 합니다.
+- **2MB 이상 이미지도 해상도를 유지한 채 압축**을 제공합니다.
+- 사용자가 **이미지에서 원하는 영역을 직접 Crop** 할 수 있습니다.
+
+<br/>
+
+## 2.2 서버가 없는 호스팅 서비스
+
+서버를 단순히 정의하자면 클라이언트의 요청을 받아 요청에 대한 데이터를 제공하는 컴퓨터 혹은 프로그램입니다. 이미지 호스팅 서비스라면 사용자가 이미지를 등록 후 **“URL을 요청**”을 하기 때문에 프로젝트에서 **서버의 구현은 필수적** 이었습니다.
+
+그럼 어떤 언어를 사용하여 어떻게 서버를 만들면 좋을까요? 아니, 만들지 않아도 괜찮습니다.
+
+결정하기 전, 자체 서버 개발 환경의 **node.js+express** 와 **Aws Lambda** 를 비교해 보았었습니다.
+
+|      | **node.js + express**                                                                                                                           | **Aws Lambda**                                                                                                                                                                                                                          |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 장점 | 1. 모든 시스템 구성 요소를(운영체제, 런타임) 직접 관리할 수 있어 보안 정책과 방어 전략을 세밀하게 적용 가능.                                    | 1. 서버, OS 등 기본 인프라 관리를 담당해주어, 보안 업데이트 및 운영 부담을 줄일 수 있음.                                                                                                                                                |
+| 단점 | 1. 잘못된 서버 설정, 부적절한 CORS 정책을 설정 할 우려. <br/> 2. 서버 OS 및 네트워크 장비 등 직접 관리하는 경우, 미흡한 보안이 발생 할 수 있음. | 1. 여러 함수 및 aws의 다른 서비스(API Gateway, S3 등)와 연계하여 사용하는 경우, 각각의 설정 오류나 권한 과잉 문제를 겪을 수 있음.<br/>2. AWS가 인프라의 대부분을 관리하기 때문에, 사용자가 서버 설정을 직접 수정하거나 제어하기 어려움. |
+
+Node.js 기반으로 개발하는 것도 좋은 경험이 될 것이라 생각했지만, 보안 정책을 세밀하게 제어해야 하는 부담과 러닝 커브로 인해 프로젝트 기간 내 구현에 대한 우려가 있었습니다. <br/>반면, AWS Lambda를 사용하면 보안을 포함한 운영 부담을 줄일 수 있고, 서버에서 처리할 함수의 수가 많지 않기 때문에 설정 오류에 대한 걱정도 덜 수 있어 **최종적으로 AWS Lambda 서비스를 사용하기로 결정**했습니다.
+
+<br/>
+
+# 3. How To Develop
+
+## 3-1-(A) 등록한 이미지는 어디로 저장 되는가
+
+사용자가 등록한 이미지 파일의 data는 크기가 큰 이진 데이터(binary data)를 포함하고 있어 관계형 데이터베이스 또는 NoSQL 데이터베이스에 저장하면 데이터베이스가 무거워져서 성능 에 영향을 줄 수 있습니다. 그럼 이 이미지 파일은 어떻게 저장을 시켜야 되는 걸까요?
+
+이미지 파일 저장을 위한 **대용량 파일 전송에 최적화 된 스토리지 서비스가 존재**했습니다! 여러 서비스 중에서, **Amazon S3**가 서버리스 환경 구축, DB 서비스 등 다양한 통합 서비스를 제공하는 점에서 우위를 점 한다고 판단하였고 실제로 Amazon 서비스에서 제공하는 또 다른 서비스 Lambda와도 쉽게 연계를 할 수 있는 점을 확인했습니다. 때문에 최종적으로 Amazon S3를 채택하여 이미지 저장소를 생성하게 되었습니다.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e859b658-ba57-4acd-b756-1195ed18f0d3">
+</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/bd6e0175-adc4-4a0a-ad4e-f10f6d6b80eb">
+</p>
+
+<br/>
+
+## 3.1-(B) 이미지를 저장하기 위한 조건은?
+
+Amazon S3에서 이미지를 저장하기 위해 제공하는 라이브러리 코드가 있었지만 그것 만으로는 S3에 이미지를 저장할 수 없었습니다.
+
+먼저, 사용자가 서비스를 통해 버킷으로 파일 업로드할 때, S3에게 요청을 허용할 수 있도록 파일 업로드를 할 최소한의 설정과 IAM 정책(`s3:PutObject` , `s3:getObject` ) 그리고 CORS(Cross-Origin Resource Sharing) 규칙 등을 설정이 필요합니다.
+
+위에 언급한 설정들을 통해 S3 저장소에 정상적으로 업로드가 되는 것을 확인했으나, **예상치 못 한 문제를 발생**하였습니다.
+
+![image.png](https://github.com/user-attachments/assets/12c9f9f3-3df2-496d-a8c6-6d076449c829)
+
+### **[⚠️ 발생한 문제 ]**
+
+![URL중복이름문제제.png](https://github.com/user-attachments/assets/c09bcb31-7a0b-4382-b017-827d4fa726c1)
+
+1. **동일한 파일 명으로 중복 업로드할 경우, 새로운 이미지 업로드가 아닌 기존 이미지가 덮어씌워지는 현상이 발생하였습니다.**
+2. **한글 파일 명으로 업로드 시, 인코딩 문제로 인해 사용자에게 제공되는 URL에 파일명이 깨지는 문제가 있었습니다.**
+
+이미지를 S3에 보내기 전, 중복을 피할 수 있는 고유한 파일 명으로 변경하고 그 URL을 받는 방식으로 진행하면, 1번과 2번 문제를 동시에 해결할 수 있다고 판단하였습니다.
+<br/>
+
+<aside>
+
+**중복은 그만, 고유성을 보장하는 UUID!**<br/>
+UUID(Universally Unique Identifier)는 **128비트의 고유 식별자**로,
+네트워크 상에서 고유한 id, 또는 값을 만들기 위한 표준 규약으로 정의합니다.
+
+</aside>
+
+파일명을 이 UUID로 교체하면 좋겠다는 생각했고 등록 시 받을 수 있는 file 객체 내부에 name이라는 키가 있는 것을 확인했습니다. 해당 key 값에 바로 UUID를 할당하는 방식으로 처리할 수 있지 않을까 생각하여 `file.name` = `UUID4()`로 값을 할당해 변경해주었지만 type err를 마주하였습니다. 할당만 했을 뿐이라 console.log로 UUID4()값을 찍어보았지만 UUID의 값에는 이상이 없는 점을 확인 하였습니다.
+
+그렇다면 file.name에 대한 접근이 잘 못 되었을까? 라는 의문이 들게 되었고
+
+공식 문서를 확인한 결과 **file.name은 읽기 전용 속성**으로 **직접 수정할 수 점을 확인하였습니다.** [[file api 공식문서]](https://developer.mozilla.org/en-US/docs/Web/API/File)
+
+![fileName자료.png](https://github.com/user-attachments/assets/02476415-433e-46bd-a066-e0f2224dca28)
+
+비록 보안 정책으로 인해 file.name을 직접 수정할 수 없지만 **대안**으로 **새로운 파일 객체를 생성하여 이름을 새로 부여하는 방법이 존재** 했습니다. 아래는 새로운 파일 객체를 적용한 Logic입니다.
+
+![fileName수정로직.png](https://github.com/user-attachments/assets/ac4ebe99-1fb5-4bcd-8c9b-28f4310794b1)
+
+위의 코드로 재 테스트한 결과, 이미지를 정상적으로 열람할 수 있었고 이로써 사용자가 이미지를 등록하여 S3 저장소에 저장하는 초기 플로우 작업을 완료했지만, 한 가지 새로운 **문제**를 마주하게 되었습니다.
+<br/>
+
+### **[⚠️추가 발생한 문제]**
+
+1. **클라이언트에서 직접 이미지를 등록하는 방식은 보안 상 권장되지 않았습니다.**
+   클라이언트 코드에 API 키나 자격 증명이 포함될 경우, 이를 탈취 당해 악용할 수 있습니다.
+
+이 문제를 해결할 수 있는 방법으로 **Aws Pre-signed URL**이 적절한 답임을 알게 되었습니다.
+
+## 3-1-(C) Aws Pre-signedURL ?
+
+서버를 통해 미리 서명된 URL(pre-signed URL)을 제공하면 일정 시간 동안 유효한 URL을 발급과 동시에 자격 증명 이루어져 클라이언트에 노출되지 않아 보안 정책을 유지할 수 있습니다.
+
+그렇다면 어떤 흐름으로 pre-signed URL을 사용해야 할까요?
+
+**[ ❌ 적용 전, 기존 Flow ]**
+
+![preSignedURL적용전.png](https://github.com/user-attachments/assets/c77a702f-42a8-43de-847a-857b7184bcd1)
+
+**[ ✅ pre-signed URL 적용 후, Flow ]**
+
+![preSignedURL적용후.png](https://github.com/user-attachments/assets/37ba1be4-e084-413c-badb-2e57197c6dec)
+
+pre-signed URL을 적용한 흐름에서 볼 수 있듯이**,** 클라이언트가 이미지 파일을 Lambda에게 주고 **Lambda 에서는 미리 도메인과 UUID 기반 파일 명을 이용해 최종 파일 URL(finalFileUrl)을 생성**해두고 있습니다.
+
+이 URL은 S3에 실제 파일이 업로드 되기 전에 미리 구성된 것으로 사용자는 URL을 알고 있기 때문에, pre-signed URL로 S3에 파일을 PUT 요청하여 업로드한 후, 해당 URL로 접근하게 되는 것입니다!
+
+이것으로 **사용자는** ImagePlace가 제공하는 **S3에 대해 이미지를 등록할 수 있도록 허용을 받아 유효기간 5일 동안 URL을 사용** 수 있게 되는 것 입니다!
+
+### [⚠️번외 문제] DNS 관련 오류 및 해결
+
+1. **Lambda를 통해 S3 업로드가 에러 코드 없이 등록이 잘 되는 것과는 별개로 발급 받은 URL링크가 연결할 수 없다는 현상을 발견했습니다.**
+
+<aside>
+
+<br/>
+
+**[홈페이지 자체 오류 코드]**<br/>
+"dns_probe_finished_nxdomain" → DNS에서 해당 도메인을 찾지 못한다는 의미
+
+</aside>
+
+![image.png](https://github.com/user-attachments/assets/e8cc9ffc-47ef-422c-a923-dcffcf9bd7be)
+
+CloudFront는 CDN(콘텐츠 전송 네트워크)로 Lambda 함수는 파일이 업로드 될 S3 버킷 안에 있는 이미지의 위치를 기반으로 미리 최종 접근 URL을 생성할 때 CloudFront 도메인을 사용합니다.
+
+여기서 도메인이 뜨지 않는다는 건 **CloundFront 연결에 문제**가 있다는 것이므로 Cloudfront의 설정을 다시 검토 할 필요가 있었습니다.
+
+**💻 확인 리스트**
+
+- [ ❌ ] CloudFront에 S3 버킷이 잘 연결 되어있는지 확인.
+- [ ❌ ] CloudFront 배포의 Origin Path(경로) 확인.
+  - Origin Path를 빈 값 설정 후 S3 버킷에 위치한 폴더(`upload/`)를 읽을 수 있도록 세팅했는지.
+- [ ❌ ] 캐시 무효화(invalidation) 작업 시도
+  - 작업을 시도 → 버킷의 객체 경로 지정해서 추가 시도 → 변화 없음.
+    ![image.png](attachment:d910277e-c469-4202-8ea8-10130e83bf11:image.png)
+- [ ❌ ] Cloudfront 에 ACM 인증서가 연결되어있는지?
+  - Cloudfront 배포를 하기 위해선 미국 버지니아 동부 지역의 SSL 인증서가 필수 입니다!
+  - 해당 SSL인증서에 \*.myimagePlace.com (와일드 카드 사용한 도메인으로 인증 함)
+- [ ❌ ] Alternate Domain Names (CNAMEs) 확인
+  - 대체 도메인에 `img.myimageplace.com`과 `*.myimageplace.com`이 등록되어 있는지?
+- [ ✅ ] CloudFront와 Route53발급 받은 호스팅의 DNS 레코드 주소 일치하는지 확인.
+
+![최종확인.png](https://github.com/user-attachments/assets/57de108f-78c7-4ce0-87f6-1ded8a2a6571)
+
+Rotue53에서 받은 도메인의 레코드값(NS) 과 cloudFront에 등록 된 도메인의 이름 서버 주소가 다른 문제였으며 이를 일치시켜주어야 정상적으로 DNS가 연결됨을 확인 할 수 있었습니다.
+
+<br/>
+
+## 3-2-(A) 이미지 해상도는 그대로 두고 용량만 줄일 수 있는가
+
+먼저, 유사 서비스들이 어떻게 용량 문제를 해결하고 있는지 조사를 진행했습니다.
+
+1MB에서 8.5MB 사이의 고해상도 이미지를 준비해 테스트한 결과, A 사이트에서는 4.5MB 이상의 이미지 등록 시 자동으로 압축을 수행하는 반면, B와 C 사이트에서는 별도의 이미지 용량 압축 기능은 제공하지 않았으며, 5MB 이상의 이미지를 등록할 경우 10초 이상 Lazy Loding 현상이 발생하는 점을 발견했습니다.
+
+이러한 결과를 토대로, **고용량 등록에 대응해 이미지 용량 압축을 구현하는 것이 사용자 경험 측면에서 유리하다고 판단**하여 기능 개발을 시작하게 되었습니다.
+
+**[ 💁사이트 별 용량 변화 테스트 ]**
+
+|                | A. Imgur         | B. PostImage | C. imaebb |
+| -------------- | ---------------- | ------------ | --------- |
+| 용량 압축 여부 | ✅ 8.5MB → 4.7MB | ❌           | ❌        |
+| 지연 시간      | 6초              | 12초         | 10초      |
+
+본격적으로 용량 압축하는 방안을 검토하던 중, browser-image-compression과 Compressor.js라는 라이브러리를 발견했고 두 라이브러리 모두 공식 문서와 소스 코드를 통해 `canvas`태그를 활용하여 용량 압축을 지원한다는 점을 확인할 수 있었습니다. (참고로, browser-image-compression은 2021년에 `canvas` 기반 방식에서 UZIP 방식으로 변경되었다고 명시되어 있습니다.)
+
+핵심은 **Canvas 태그를 활용하여 해상도는 유지한 채 이미지의 용량만 줄일 수 있다는 것**입니다. 이를 위해 `.toDataURL()`과 `.toBlob()` 두 가지 방식이 있으며, 이 두 매서드의 파라미터 중 **이미지 압축 품질(quality)을 조절**하는 것이 용량을 줄이는 중요한 요소입니다.
+
+<aside>
+
+**quality가 다루는 손실 압축 방식 이란?**
+픽셀 수를 줄이는 것이 아니라, 각 픽셀에 저장된 정보의 일부를 의도적으로 버려 파일 크기를 줄이는 방식이다.
+
+</aside>
+
+**[ 💁매서드 비교 ]**
+
+|           | .toDataURL()                                                                                               | .toBlob()                                                                                        |
+| --------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 반 환 값  | 캔버스의 내용을 Base64 인코딩된 데이터 URL로 반환(이미지 데이터를 포함하는 문자열)                         | 캔버스의 내용을 **Blob** 객체로 반환(blob는 이진 데이터 덩어리)                                  |
+| 작동 방식 | 동기식 처리                                                                                                | 비동기식 처리                                                                                    |
+| 특징      | Base64로 인코딩된 데이터는 이미지 크기가 커지나, 텍스트 형식으로 다룰 수 있어 **처리 속도 면에서는 빠름**. | 네트워크 전송이나 파일 저장에 유리한 Blob 데이터로 더 **큰 이미지 파일을 처리하는데 효율 적**임. |
+
+공식 문서에서도 큰 이미지의 경우 성능 문제를 고려해 canvas.toBlob() 사용을 권장하고 있거니와 사용자가 고해상도 이미지를 등록할 가능성을 감안하여, 본 프로젝트에서는 **canvas.toBlob() 방식을 채택**하기로 결정하였습니다.
+<br/>
+
+## 3-2-(B) 용량이 얼마나 줄었을까?
+
+**canvas.toBlob**의 \*\*\*\*quality 인자를 0.8 로 설정하여 압축 테스트를 진행한 결과는 아래와 같습니다.
+
+**[ 1차 압축 파일 용량 변화 ]**
+
+- 1.41MB → 1.17MB
+- 1.98MB → 1.76MB
+- 4.78MB → 4.20MB
+- 1.93KB → 5.09KB
+- 4.18KB → 2.08KB
+
+MDN에 따르면 quality 인자는 0에서 1 사이의 값을 취하며 기본 값은 0.92입니다. 따라서 quality를 0.8로 설정할 경우, 극적인 용량 감소가 발생하지 않을 수 있다는 점은 이해가 되었으나 KB를 압축하는 테스트에서는 오히려 파일 크기가 증가하는 현상이 나타났습니다.
+
+이러한 현상이 quality 인자의 수치를 조정해도 동일하게 발생하는지 확인하기 위해 quality 값을 0.7로 재 조정했습니다.
+
+**[2차 압축 파일 용량 변화]**
+
+- 1.41MB → 756KB
+- 1.98MB → 1.10MB
+- 4.78MB → 2.41MB
+- 1.93KB → 5.09KB
+- 4.18KB → 2.08KB
+
+![용량변화비교.png](https://github.com/user-attachments/assets/f7194aed-3ac0-4d77-89c5-5d4485e72a79)
+
+1.9MB 이상의 고용량 이미지의 경우 긍정적인 압축률을 얻을 수 있으나, 저용량 이미지에서는 오히려 용량이 커지는 현상이 확인 되었고 관련 이슈를 조사한 결과, 재인코딩 과정에서 원본 이미지가 이미 최적화된 경우에는 압축 후 파일 크기가 증가할 수 있다는 정보를 확인했습니다.
+
+때문에 벤치 마킹을 진행했던 A. imagur 에서도 4.5MB 이상의 고용량 이미지에 한해 압축 서비스를 제공하는 것으로 보아, 이 같은 이유가 작용했을 것으로 생각하게 되었습니다.
+
+그렇다면 저용량 이미지의 경우 되려 파일 크기가 증가하는 경우의 **대안**으로, quality 인자는 0.7 고정하여 **2MB 이상의 이미지부터 압축을 적용**하도록 조건문을 설정하여 이미지 압축을 진행하는 쪽으로 결정 및 구현하였습니다.
+
+```jsx
+const IMAGE_DECREASE_CONDITION_SIZE = 2 * 1024 * 1024;
+// 적용한 조건문
+const compressedReduceImage =
+  fileToUpload.size > IMAGE_DECREASE_CONDITION_SIZE
+    ? await reduceImageVolume(fileToUpload, 0.7)
+    : fileToUpload;
+```
+
+<br/>
+
+## 3-3-(A) 어떤 방법으로 이미지를 자를까?
+
+호스팅 flow를 작업하면서 이미지와 연관 된 편집 기능이 있으면 좋을 것 같다고 떠올렸고 단순히 미리 정해진 영역이 아니라, **사용자가 기본 제공 영역을 직접 조절해 원하는 부분만 추출**할 수 있도록 설계하는 것을 목표로 했습니다.
+
+이 과정에서 카카오톡의 자르기 기능처럼 직관적이고 쉬운 UI 구성을 구현해보기로 결정했습니다.
+
+![image.png](https://github.com/user-attachments/assets/46fa960f-642a-42c6-a06e-1cb422190cb9)
+
+<br/>
+
+## 3-3-(B) 사용자가 조절할 Overlay 와 Handle영역 구하기
+
+Canvas에서 사각형을 그리려면 x, y 좌표와 width, height, 총 4가지 인자가 필요합니다. 이 원리를 활용해 사용자가 이미지를 자를 영역(Overlay)을 만들 때는 두 개의 사각형을 사용합니다.
+
+먼저, fillRect로 캔버스 전체를 채워 자르기 상태를 표현한 후, 그 위에 clearRect를 적용하여 특정 영역을 지워냅니다. 이렇게 지워진 영역은 사용자가 직접 조절해 선택할 수 있는 영역이 됩니다!
+
+![image.png](https://github.com/user-attachments/assets/5998bc82-e550-4cdd-9f61-581009093903)
+
+여기서 가장 핵심 부분은 지워진 영역 각 네 모서리에 들어갈 작은 사각형 **”핸들”** 입니다. 이 핸들을 가지고 사용자가 지워진 영역을 제어할 수 있게 만들어야 합니다. 우선 이 작은 사각형 핸들의 위치부터 구해보았습니다.
+
+![image.png](https://github.com/user-attachments/assets/637a9af7-85a8-4b40-98f9-d7bfe0ecd502)
+
+<br/>
+
+## 3-3-(C) Handle을 통해 지정 영역을 조정할 수 있게 움직임 넣기
+
+사용자가 handle을 사용해 이동 가능한 모양을 만들었다면, 이제 실제로 이 모양을 움직일 수 있도록 구현해야 합니다. 즉, 사용자가 handle을 누를 때 발생하는 `handleMouseDown` 이벤트를 통해 마우스의 위치를 감지해야 합니다.
+
+여기서 중요한 점은 단순히 브라우저 뷰포트 상의 좌표가 아니라**, canvas의 좌표를 기준으로 마우스 위치를 계산**해야 한다는 것입니다. 왜냐하면, 사용자가 지정할 영역은 해당 요소의 좌표에 맞춰 설정되기 때문입니다.
+
+이를 위해, `getBoundingClientRect()`를 사용해 canvas 요소의 위치와 크기를 파악합니다. 예를 들어, event.clientX가 80px이고, canvas의56 왼쪽 경계(rect.left)가 30px이면, canvas 내부에서의 마우스 X 좌표는 80px - 30px = 50px이 됩니다.
+
+![image.png](https://github.com/user-attachments/assets/c06f9075-c238-4929-8f15-4bb1faf91726)
+
+```jsx
+const rect = overlayCanvasRef.current.getBoundingClientRect();
+const mouseX = event.clientX - rect.left;
+const mouseY = event.clientY - rect.top;
+```
+
+이렇게 계산된 상대 좌표를 바탕으로, 클릭한 handle과 현재 지정 영역의 상태, 그리고 마우스 위치를 저장합니다.
+
+이제 동작을 위한 모든 재료는 준비되어있습니다. 사용자가 MouseMove 이벤트로 마우스를 움직이면초기 마우스 위치와 현재 위치 사이의 delta(변위, deltaX와 deltaY)를 계산합니다.
+
+이 변위를 기반으로, activeHandle(현재 조절 중인 handle)에 따라 지정 영역의 좌표와 크기를 업데이트합니다.예를 들어, 좌측 상단의 빨간 handle을 드래그 하면, 지정 영역의 x, y 값이 증가하면서 width와 height는 감소하게 됩니다.
+
+### **[⚠️ 발생한 문제 ]**
+
+![작은영역01.png](https://github.com/user-attachments/assets/aa76b444-b7b6-4a3e-9c49-b4d77463120c)
+
+1. **사용자가 선택한 지정 영역의 width 와 height가 0 이 되어 추출되는 이미지 영역이 유효하지 않는 현상이 발생하였습니다.**
+
+더불어 핸들 크기에 가려져 사용자가 지정 영역을 자세하기 확인하기 어려운 단점 또한 발견 했습니다. 그렇다면 사용자가 지정 영역을 줄이다가 **최소 크기에 도달하면 지정 영역이 줄어들지 않게** 만들어야 합니다.
+
+먼저 newRect.x 값과 newRect.y 를 만나게 하지 않도록 둘의 값이 일치하다면 이라는 조건을 세웠습니다. 그러나 문제의 조건을 도식화하여 확인 했을 때 X축과 Y축은 값이 같아도 이어지는 꼭짓점으로만 만나며 정작 넓이 값을 가지지 못하였습니다. <br/><br/>
+그렇다면 여기서 핵심은 넓이값 인 것을 인지하게 되었고 **최소 제한 크기 기준점(50px)** 을 정해 상수로 관리하는 것이 좋을 것이라 판단했습니다. <br/>
+사용자가 지정 영역을 줄일 때 최소 제한 크기 보다 작아지면 해당 지정 영역을 값을 담은 newRect.width 와 newRect.height에게 무조건 최소 제한 크기의 값을 넣어주었습니다.
+
+```jsx
+const MIN_CROP_SIZE = 50;
+// 적용한 조건문
+if (newRect.width < MIN_CROP_SIZE) newRect.width = MIN_CROP_SIZE;
+if (newRect.height < MIN_CROP_SIZE) newRect.height = MIN_CROP_SIZE;
+```
+
+<br/>
+## 3-3-(D)  지정한 영역을 잘라내기
+
+사용자는 지정 영역을 포커싱 하고 있으며, 해당 영역의 값을 인식하고 있습니다. 이 영역은 사용자 입장에서는 이미지를 자르는 것과 유사하지만, **실제로는 지정한 영역을 추출**해야 합니다.
+
+이미지에서 해당 영역을 추출한 후 저장하고, 이를 Lambda에 전달하여 URL을 반환 받는 것이 최종 프로세스입니다. 그렇다면, 추출한 이미지를 어떻게 저장해야 할까요?
+
+사용자가 지정한 영역의 `x`, `y`, `width`, `height` 값을 계산한 후, **새로운 `canvas`에 해당 영역을 그려 `blob` 파일로 변환하여 전달**하면 됩니다. 이를 통해 최종적으로 선택된 영역을 기준으로 원본 이미지에서 해당 부분만 추출할 수 있습니다.
+
+다만, 이번에는 `canvas`를 브라우저 화면에 직접 표시하지 않고, 사용자가 볼 수 없는 **offscreen canvas**를 생성 해야 합니다. 사용자가 "URL 생성" 버튼을 눌러 지정 영역의 이미지를 추출했으므로, 별도로 화면에 렌더링 할 필요가 없습니다. 이렇게 하면 UI에 영향을 주지 않으면서 이미지 추출 작업을 효율적으로 처리할 수 있습니다.
+
+```jsx
+// 기존 canvas -> canvas 태그에 useRef로 속성을 받아서 사용
+const canvas = overlayCanvasRef.current;
+const ctx = canvas.getContext("2d");
+
+// offscreen 의경우
+const cropCanvas = document.createElement("canvas");
+const cropCtx = cropCanvas.getContext("2d");
+```
+
+이 과정을 거치면 사용자가 선택한 이미지를 S3에 저장하고, 해당 이미지의 URL을 제공할 수 있게 됩니다.
+
+---
+
+# 4. 기술 스택 및 환경
+
+### **Frontend**
+
+- React
+- Zustand (상태 관리)
+- Tailwind CSS (스타일링)
+
+### **Backend**
+
+- AWS Lambda (서버리스)
+- API Gateway (라우팅)
+- AWS S3 (이미지 저장소, Pre-signed URL 사용)
+- CloudFront + Route53 (CDN 및 도메인 관리)
+- DynamoDB (데이터베이스)
+
+### **배포**
+
+- Netlify (정적 호스팅)
