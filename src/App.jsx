@@ -1,11 +1,11 @@
 import ImageUpload from "./component/ImageUpload";
-import Loding from "./component/Loding";
-import useLodingStore from "./store/useLodingStore";
+import Loading from "./component/Loading";
+import useLoadingStore from "./store/useLoadingStore";
 
 function App() {
-  const { isLoding } = useLodingStore();
+  const { isLoading } = useLoadingStore();
 
-  return <div>{isLoding ? <Loding /> : <ImageUpload />}</div>;
+  return <div>{isLoading ? <Loading /> : <ImageUpload />}</div>;
 }
 
 export default App;

@@ -11,7 +11,7 @@ const MIN_CROP_SIZE = 50;
 
 export default function CropModal({
   selectFile,
-  setIsLoding,
+  setIsLoading,
   setIsShowCropModal,
 }) {
   const [imageSrc, setImageSrc] = useState(null);
@@ -310,7 +310,7 @@ export default function CropModal({
         return;
       }
       try {
-        setIsLoding(true);
+        setIsLoading(true);
         const payload = {
           fileName: selectFile.name.replace(/\.[^/.]+$/, ".png"),
           fileType: "image/png",
@@ -409,7 +409,7 @@ function ButtonOfCropModal({ message, btnBackgroundColor, handleClick }) {
 
 CropModal.propTypes = {
   selectFile: PropTypes.object,
-  setIsLoding: PropTypes.func.isRequired,
+  setIsLoading: PropTypes.func.isRequired,
   setIsShowCropModal: PropTypes.func,
 };
 

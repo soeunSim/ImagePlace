@@ -1,7 +1,7 @@
-export default function Loding() {
+export default function Loading() {
   return (
     <div className="w-full h-screen bg-mainBackcolor flex items-center flex-col justify-center">
-      <div className="mb-4 text-3xl text-pointBlue title">Loding</div>
+      <div className="mb-4 text-3xl text-pointBlue title">Loading</div>
       <div className="flex items-center justify-center space-x-2">
         <div
           className="w-3 h-3 bg-pointBlue rounded-full animate-bounce"

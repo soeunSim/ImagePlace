@@ -8,13 +8,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
-import useLodingStore from "../store/useLodingStore";
+import useLoadingStore from "../store/useLoadingStore";
 import CropModal from "./CropModal";
 import HowToUseModal from "./HowToUseModal";
 import ToolTip from "./ToolTip";
 
 export default function ImageUpload() {
-  const { setIsLoding } = useLodingStore();
+  const { setIsLoading } = useLoadingStore();
   const [isShowToolTip, setIsShowToolTip] = useState(false);
   const [isShowCropModal, setIsShowCropModal] = useState(false);
   const [isShowHowToUseModal, setIsShowHowToModal] = useState(false);
@@ -83,7 +83,7 @@ export default function ImageUpload() {
       return;
     }
 
-    setIsLoding(true);
+    setIsLoading(true);
 
     try {
       const compressedReduceImage =
@@ -293,7 +293,7 @@ export default function ImageUpload() {
       {isShowCropModal ? (
         <CropModal
           selectFile={selectFile}
-          setIsLoding={setIsLoding}
+          setIsLoading={setIsLoading}
           setIsShowCropModal={setIsShowCropModal}
         />
       ) : (

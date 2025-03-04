@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { HashRouter, Route, Routes } from "react-router-dom";
 
 import App from "./App.jsx";
-import Loding from "./component/Loding.jsx";
+import Loading from "./component/Loading.jsx";
 import UrlDelivery from "./component/UrlDelivery.jsx";
 import "./index.css";
 import "./static/fonts/font.css";
@@ -17,8 +17,8 @@ createRoot(document.getElementById("root")).render(
           element={<UrlDelivery />}
         />
         <Route
-          path="/loding"
-          element={<Loding />}
+          path="/loading"
+          element={<Loading />}
         />
         <Route
           path="/"

@@ -5,11 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
 
-import useLodingStore from "../store/useLodingStore";
+import useLoadingStore from "../store/useLoadingStore";
 
 export default function UrlDelivery() {
   const [urlData, setUrlData] = useState(null);
-  const { setIsLoding } = useLodingStore();
+  const { setIsLoading } = useLoadingStore();
   const navigate = useNavigate();
   const { id } = useParams();
   const deliveryCanvasRef = useRef();
@@ -32,8 +32,8 @@ export default function UrlDelivery() {
       }
     };
     getDataOfImageUrlInDB();
-    setIsLoding(false);
-  }, [id, setIsLoding]);
+    setIsLoading(false);
+  }, [id, setIsLoading]);
 
   const CANVASWIDTH = 700;
   const CANVASHEIGHT = 400;
