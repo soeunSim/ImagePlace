@@ -236,6 +236,7 @@ export default function ImageUpload() {
                   type="file"
                   className="hidden"
                   onChange={handleDragADropImageChange}
+                  data-testid="drag-drop-input"
                 />
                 <FontAwesomeIcon
                   className="text-2xl pb-1"
@@ -257,6 +258,7 @@ export default function ImageUpload() {
                   accept=".png,.jpg,.jpeg"
                   ref={fileCheck}
                   onChange={handleImageChange}
+                  data-testid="file-upload-input"
                 />
               </label>
               <div className="flex justify-between">
