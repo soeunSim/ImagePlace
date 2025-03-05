@@ -163,13 +163,14 @@ CloudFront는 CDN(콘텐츠 전송 네트워크)로 Lambda 함수는 파일이 �
   - 해당 SSL인증서에 \*.myimagePlace.com (와일드 카드 사용한 도메인으로 인증 함)
 - [ ❌ ] Alternate Domain Names (CNAMEs) 확인
   - 대체 도메인에 `img.myimageplace.com`과 `*.myimageplace.com`이 등록되어 있는지?
-- [ ✅ ] CloudFront와 Route53발급 받은 호스팅의 DNS 레코드 주소 일치하는지 확인.
+- [ ✅ ] CloudFront와 Route53 네임서버(NS) 주소가 일치하는지 확인.
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/57de108f-78c7-4ce0-87f6-1ded8a2a6571">
 </p>
 
-Rotue53에서 받은 도메인의 레코드값(NS) 과 cloudFront에 등록 된 도메인의 이름 서버 주소가 다른 문제였으며 이를 일치시켜주어야 정상적으로 DNS가 연결됨을 확인 할 수 있었습니다.
+CloudFront 도메인과 Route53의 네임서버(NS) 불일치로 인해 DNS 오류(dns_probe_finished_nxdomain)가 발생하였던 문제였으며
+CloudFront 배포 설정에서 Route53의 레코드 값을 재검토해 일치시켜주어 정상적으로 연결되게 처리하였습니다.
 
 <br/>
 
