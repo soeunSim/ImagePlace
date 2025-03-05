@@ -33,7 +33,7 @@ export default function HowToUseModal({ closeHowToModal }) {
           />
           <UseInfo
             listNumber={"02"}
-            listMessage={`등록하신 이미지는 5일간 유효합니다. 단, 등록 당일은 유효기간에 포함되지 않습니다.`}
+            listMessage={`등록하신 이미지는 7일간 유효합니다.`}
           />
           <UseInfo
             listNumber={"03"}
