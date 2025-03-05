@@ -95,8 +95,7 @@ Amazon S3에서 이미지를 저장하기 위해 제공하는 라이브러리 �
 파일명을 UUID로 교체하는 방안을 검토하던 중, 등록 시 전달되는 file 객체에 name 키가 포함되어 있음을 인지했습니다. 이에 해당 키에 직접 UUID를 할당하고자 file.name = UUID4()로 값을 변경했으나, 타입 에러가 발생했습니다. 단순히 객체에 값을 할당하는 과정에서 문제가 발생한 것인지 의심하여 console.log로 UUID4()의 결과를 출력한 결과, UUID 값 자체에는 이상이 없다는 점을 파악했습니다.
 
 그렇다면 file.name에 대한 접근이 잘 못 되었을까? 라는 의문이 들게 되었고
-
-공식 문서를 확인한 결과 **file.name은 읽기 전용 속성**으로 **직접 수정할 수 점을 확인하였습니다.** [[file api 공식문서]](https://developer.mozilla.org/en-US/docs/Web/API/File)
+공식 문서를 확인한 결과 **file.name은 읽기 전용 속성**으로 **직접 수정할 수 없는 것을 발견하였습니다.** [[file api 공식문서]](https://developer.mozilla.org/en-US/docs/Web/API/File)
 
 ![fileName자료.png](https://github.com/user-attachments/assets/02476415-433e-46bd-a066-e0f2224dca28)
 
@@ -194,7 +193,7 @@ CloudFront 배포 설정에서 Route53의 레코드 값을 재검토해 일치�
 핵심은 **Canvas 태그를 활용하여 해상도는 유지한 채 이미지의 용량만 줄일 수 있다는 것**입니다. 이를 위해 `.toDataURL()`과 `.toBlob()` 두 가지 방식이 있으며, 이 두 매서드의 파라미터 중 **이미지 압축 품질(quality)을 조절**하는 것이 용량을 줄이는 중요한 요소입니다.
 
 > **quality가 다루는 손실 압축 방식 이란?** <br/>
-> 픽셀 수를 줄이는 것이 아니라, 각 픽셀에 저장된 정보의 일부를 의도적으로 버려 파일 크기를 줄이는 방식이다.
+> 픽셀 수를 줄이는 것이 아니라, 각 픽셀에 저장된 정보의 일부를 의도적으로 버려 파일 크기를 줄이는 방식입니다.
 
 **[ 💁매서드 비교 ]**
 
@@ -341,7 +340,7 @@ const cropCanvas = document.createElement("canvas");
 const cropCtx = cropCanvas.getContext("2d");
 ```
 
-이 과정을 거치면 사용자가 선택한 이미지를 S3에 저장하고, 해당 이미지의 URL을 제공할 수 있게 됩니다.
+이 과정을 거치면 사용자가 선택한 이미지를 S3에 저장하고, 해당 이미지의 URL을 제공할 수 있게 됩니다. <br/>
 
 # 4. 기술 스택 및 환경
 
