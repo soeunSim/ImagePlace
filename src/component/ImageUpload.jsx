@@ -235,6 +235,7 @@ export default function ImageUpload() {
                 <input
                   type="file"
                   className="hidden"
+                  accept=".png,.jpg,.jpeg,.webp"
                   onChange={handleDragADropImageChange}
                   data-testid="drag-drop-input"
                 />
@@ -243,7 +244,7 @@ export default function ImageUpload() {
                   icon={faUpload}
                 />
                 <p className="">클릭 또는 파일을 이곳에 드롭하세요.</p>
-                <p className="">png, jpg, jpeg 첨부가능</p>
+                <p className="">png, jpg, jpeg, WEBP 첨부가능</p>
               </label>
             </div>
             <div className="flex w-1/2 flex-col px-8 py-8 relative ">
@@ -255,7 +256,7 @@ export default function ImageUpload() {
                   id="upLoadFile"
                   className=" file:hidden text-white text-sm min-w-1 cursor-pointer"
                   type="file"
-                  accept=".png,.jpg,.jpeg"
+                  accept=".png,.jpg,.jpeg,.webp"
                   ref={fileCheck}
                   onChange={handleImageChange}
                   data-testid="file-upload-input"
