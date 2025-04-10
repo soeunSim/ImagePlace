@@ -9,20 +9,22 @@ export default function HowToUseModal({ closeHowToModal }) {
 
   return (
     <div className="absolute w-full h-dvh left-0 bg-gray-950/50 animate-opacity duration-100">
-      <div className="w-[700px] absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 bg-white rounded-md">
-        <div className="p-9">
-          <p className="leading-7 text-xl">
+      <div className="w-full sm:w-[700px] absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 bg-white rounded-md">
+        <div className="p-5 sm:p-9">
+          <p className="text-sm sm:text-xl sm:leading-7">
             임시 저장 솔루션,
             <br />
             당신의 이미지를 철저하게 보호해드리는
           </p>
-          <h2 className="text-xl">
-            <span className="font-bold text-5xl pe-1">ImagePlace</span>에 오신
-            것을 환영합니다!
+          <h2 className="text-sm sm:text-xl">
+            <span className="font-bold text-xl sm:text-5xl pe-1">
+              ImagePlace
+            </span>
+            에 오신 것을 환영합니다!
           </h2>
         </div>
-        <div className="px-9">
-          <p className="bg-sky-100 font-bold text-pointLogo rounded-md p-3 mb-4 text-sm">
+        <div className="px-5 sm:px-9">
+          <p className="bg-sky-100 font-bold text-pointLogo rounded-md p-3 mb-4 text-xs sm:text-sm">
             💡 imagePlace는 단기 저장형, 이미지 호스팅 서비스 입니다.
           </p>
           <UseInfo
@@ -49,8 +51,10 @@ export default function HowToUseModal({ closeHowToModal }) {
           />
         </div>
         <div className="flex justify-between items-center px-8 pt-3 pb-8">
-          <span className="text-sm text-slate-400">imagePlace v.1.0</span>
-          <button className="flex items-center ms-1 text-sm rounded-md text-white px-3 py-[5px] bg-inFodanger">
+          <span className="text-xs sm:text-sm text-slate-400">
+            imagePlace v.1.0
+          </span>
+          <button className="flex items-center ms-1 text-xs sm:text-sm rounded-md text-white px-3 py-[5px] bg-inFodanger">
             <FontAwesomeIcon icon={faXmark} />
             <span
               className="inline-block ps-1"
@@ -68,10 +72,10 @@ export default function HowToUseModal({ closeHowToModal }) {
 function UseInfo({ listNumber, listMessage }) {
   return (
     <div className="flex items-baseline mb-3">
-      <span className="px-[5px] py-[3px] items-center text-white text-xs inline-block bg-pointLogo rounded-md me-3">
+      <span className="px-[5px] py-[3px] items-center text-white text-xs sm:text-xs inline-block bg-pointLogo rounded-md me-3">
         {listNumber}
       </span>
-      <p className="flex-1">{listMessage}</p>
+      <p className="flex-1 text-xs sm:text-sm">{listMessage}</p>
     </div>
   );
 }
