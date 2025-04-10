@@ -25,7 +25,6 @@ export default function UrlDelivery() {
         const response = await fetch(
           `https://en8nts1hs2.execute-api.ap-northeast-2.amazonaws.com/get-url-data/delivery/${id}`
         );
-
         if (!response.ok) {
           throw new Error("네트워크 응답 오류");
         }
@@ -39,62 +38,73 @@ export default function UrlDelivery() {
     setIsLoading(false);
   }, [id, setIsLoading]);
 
-  const CANVASWIDTH = 700;
-  const CANVASHEIGHT = 400;
+  const drawCanvas = (image) => {
+    const canvas = deliveryCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const parent = canvas.parentElement;
+    const cssWidth = parent.clientWidth;
+    const cssHeight = parent.clientHeight;
+
+    const dpr = Math.min(window.devicePixelRatio, 3) || 1;
+
+    canvas.width = cssWidth * dpr;
+    canvas.height = cssHeight * dpr;
+    canvas.style.width = cssWidth + "px";
+    canvas.style.height = cssHeight + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    let scaleFactor;
+    if (image.width > cssWidth || image.height > cssHeight) {
+      scaleFactor = Math.min(cssWidth / image.width, cssHeight / image.height);
+    } else {
+      scaleFactor = 1;
+    }
+    const drawnWidth = image.width * scaleFactor;
+    const drawnHeight = image.height * scaleFactor;
+    const offsetX = (cssWidth - drawnWidth) / 2;
+    const offsetY = (cssHeight - drawnHeight) / 2;
+
+    ctx.fillStyle = "#313131";
+    ctx.fillRect(0, 0, cssWidth, cssHeight);
+    ctx.drawImage(
+      image,
+      0,
+      0,
+      image.width,
+      image.height,
+      offsetX,
+      offsetY,
+      drawnWidth,
+      drawnHeight
+    );
+  };
 
   useEffect(() => {
     if (!urlData) return;
-    const showCanvas = deliveryCanvasRef.current;
-    const context = showCanvas.getContext("2d");
-    const dpr = Math.min(window.devicePixelRatio, 3) || 1;
-
-    showCanvas.width = CANVASWIDTH;
-    showCanvas.height = CANVASHEIGHT;
-
     const image = new Image();
     image.crossOrigin = "Anonymous";
     image.src = urlData.image_url;
-
     image.onload = () => {
-      const imageWidth = image.width;
-      const imageHeight = image.height;
-
-      let scaleFactor;
-      if (imageWidth > CANVASWIDTH || imageHeight > CANVASHEIGHT) {
-        scaleFactor =
-          imageWidth > imageHeight
-            ? CANVASWIDTH / imageWidth
-            : CANVASHEIGHT / imageHeight;
-      } else {
-        scaleFactor = 1;
-      }
-      const drawnWidth = imageWidth * scaleFactor;
-      const drawnHeight = imageHeight * scaleFactor;
-
-      showCanvas.width = CANVASWIDTH * dpr;
-      showCanvas.height = CANVASHEIGHT * dpr;
-      context.scale(dpr, dpr);
-
-      showCanvas.style.width = CANVASWIDTH + "px";
-      showCanvas.style.height = CANVASHEIGHT + "px";
-
-      const offsetX = (CANVASWIDTH - drawnWidth) / 2;
-      const offsetY = (CANVASHEIGHT - drawnHeight) / 2;
-
-      context.fillStyle = "#313131";
-      context.fillRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
-      context.drawImage(
-        image,
-        0,
-        0,
-        imageWidth,
-        imageHeight,
-        offsetX,
-        offsetY,
-        drawnWidth,
-        drawnHeight
-      );
+      drawCanvas(image);
     };
+  }, [urlData]);
+
+  useEffect(() => {
+    if (!urlData) return;
+
+    const handleResize = () => {
+      const image = new Image();
+      image.crossOrigin = "Anonymous";
+      image.src = urlData.image_url;
+      image.onload = () => {
+        drawCanvas(image);
+      };
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [urlData]);
 
   const handleBackMain = () => {
@@ -111,10 +121,10 @@ export default function UrlDelivery() {
   };
 
   return (
-    <div className="w-full h-screen bg-mainBackcolor">
-      <div className="w-[700px] mx-auto my-0">
+    <div className="w-full h-screen bg-mainBackcolor px-5">
+      <div className="w-full sm:w-[700px] mx-auto">
         <div className="pt-[2rem]">
-          <h2 className="text-center title pb-4 text-4xl font-bold text-pointBlue">
+          <h2 className="text-center title pb-4 text-1xl sm:text-4xl font-bold text-pointBlue">
             🎉URL creation completed!🎉
           </h2>
           {!urlData ? (
@@ -122,7 +132,7 @@ export default function UrlDelivery() {
           ) : (
             <div className="flex mb-2">
               <button
-                className="w-[110px] bg-pointLogo px-2 me-2 text-white text-xs rounded-md"
+                className="w-[110px] bg-pointLogo sm:px-2 me-2 text-white text-xs rounded-md"
                 onClick={handleCopy}
               >
                 <FontAwesomeIcon icon={faLink} /> PageUrl Copy
@@ -134,16 +144,18 @@ export default function UrlDelivery() {
               />
             </div>
           )}
-          <div className="rounded-md overflow-hidden relative w-[700px] h-[400px]">
+
+          <div className="relative w-full h-[250px] sm:h-[400px]">
             <canvas
               className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 duration-200"
               ref={deliveryCanvasRef}
             ></canvas>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[698px] h-[400px] bg-pointGray rounded-md"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-pointGray rounded-md"></div>
           </div>
+
           <div className="mt-2">
             <div className="bg-pointBlue rounded-md text-sm text-white px-4 py-3 mb-2">
-              {`⚠️ 등록하신 이미지 만료기간은 7일 입니다. `}
+              {`⚠️ 등록하신 이미지 만료기간은 7일 입니다.`}
             </div>
             {!urlData ? (
               <>
@@ -169,7 +181,7 @@ export default function UrlDelivery() {
             )}
           </div>
         </div>
-        <div className="text-right">
+        <div className="text-right mt-4">
           <button
             className="bg-pointBlue font-bold rounded-md text-xs px-4 py-2 text-white"
             onClick={handleBackMain}
@@ -204,9 +216,7 @@ function UrlList({ labelMessage, inputValueType }) {
 
   return (
     <div className="pb-2 flex relative">
-      <label
-        className={`w-[110px] me-2 text-center text-xs inline-block font-bold rounded-md px-4 py-1 text-white bg-pointGray`}
-      >
+      <label className="w-[110px] me-2 text-center text-xs inline-block font-bold rounded-md px-4 py-1 text-white bg-pointGray">
         {labelMessage}
       </label>
       <input
