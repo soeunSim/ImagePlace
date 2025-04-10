@@ -14,36 +14,36 @@ ImagePlace는 이미지 등록 시 <br/> 일회성으로 고유한 URL을 제공
 
 <br/><br/>
 
-# 🟦 목차
+# 목차
 
-- [🟦 개발 배경](#%F0%9F%9F%A6-%EA%B0%9C%EB%B0%9C-%EB%B0%B0%EA%B2%BD)
-- [🟦 주요 기능 및 환경 소개](#%F0%9F%9F%A6-%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5-%EB%B0%8F-%ED%99%98%EA%B2%BD-%EC%86%8C%EA%B0%9C)
+- [개발 배경](#%EA%B0%9C%EB%B0%9C-%EB%B0%B0%EA%B2%BD)
+- [주요 기능 및 환경 소개](#%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5-%EB%B0%8F-%ED%99%98%EA%B2%BD-%EC%86%8C%EA%B0%9C)
   - [1.1 핵심 기능 소개](#11-%ED%95%B5%EC%8B%AC-%EA%B8%B0%EB%8A%A5-%EC%86%8C%EA%B0%9C)
   - [1.2 기술 스택 및 환경](#12-%EA%B8%B0%EC%88%A0-%EC%8A%A4%ED%83%9D-%EB%B0%8F-%ED%99%98%EA%B2%BD)
-    - [**⚙️ Frontend**](#%E2%9A%99%EF%B8%8F-frontend)
-    - [**⚙️ Backend**](#%E2%9A%99%EF%B8%8F-backend)
-    - [**⚙️ 배포 & 빌드**](#%E2%9A%99%EF%B8%8F-%EB%B0%B0%ED%8F%AC--%EB%B9%8C%EB%93%9C)
+    - [**Frontend**](#frontend)
+    - [**Backend**](#backend)
+    - [**배포 & 빌드**](#%EB%B0%B0%ED%8F%AC--%EB%B9%8C%EB%93%9C)
   - [1.3 상태관리는 어떻게? Zustand vs Redux vs useContext](#13-%EC%83%81%ED%83%9C%EA%B4%80%EB%A6%AC%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-zustand-vs-redux-vs-usecontext)
   - [1.4 호스팅 서비스, 서버리스 Lambda로 해결하자!](#14-%ED%98%B8%EC%8A%A4%ED%8C%85-%EC%84%9C%EB%B9%84%EC%8A%A4-%EC%84%9C%EB%B2%84%EB%A6%AC%EC%8A%A4-lambda%EB%A1%9C-%ED%95%B4%EA%B2%B0%ED%95%98%EC%9E%90)
-- [🟦 세부 구현 사항](#%F0%9F%9F%A6-%EC%84%B8%EB%B6%80-%EA%B5%AC%ED%98%84-%EC%82%AC%ED%95%AD)
+- [세부 구현 사항](#%EC%84%B8%EB%B6%80-%EA%B5%AC%ED%98%84-%EC%82%AC%ED%95%AD)
   - [1.1 등록한 이미지는 어디로 저장 되는가](#11-%EB%93%B1%EB%A1%9D%ED%95%9C-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%8A%94-%EC%96%B4%EB%94%94%EB%A1%9C-%EC%A0%80%EC%9E%A5-%EB%90%98%EB%8A%94%EA%B0%80)
   - [1.2 이미지를 저장하기 위해 필요한 설정은?](#12-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%A5%BC-%EC%A0%80%EC%9E%A5%ED%95%98%EA%B8%B0-%EC%9C%84%ED%95%B4-%ED%95%84%EC%9A%94%ED%95%9C-%EC%84%A4%EC%A0%95%EC%9D%80)
-    - [**[⚠️ 발생 문제] S3에 동일한 파일명으로 업로드할 경우**](#%E2%9A%A0%EF%B8%8F-%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-s3%EC%97%90-%EB%8F%99%EC%9D%BC%ED%95%9C-%ED%8C%8C%EC%9D%BC%EB%AA%85%EC%9C%BC%EB%A1%9C-%EC%97%85%EB%A1%9C%EB%93%9C%ED%95%A0-%EA%B2%BD%EC%9A%B0)
-    - [**[⚠️추가 발생 문제] 사용자가 S3에 직접 업로드하는 방법은 위험하다**](#%E2%9A%A0%EF%B8%8F%EC%B6%94%EA%B0%80-%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-s3%EC%97%90-%EC%A7%81%EC%A0%91-%EC%97%85%EB%A1%9C%EB%93%9C%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95%EC%9D%80-%EC%9C%84%ED%97%98%ED%95%98%EB%8B%A4)
+    - [**[발생 문제] S3에 동일한 파일명으로 업로드할 경우**](#%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-s3%EC%97%90-%EB%8F%99%EC%9D%BC%ED%95%9C-%ED%8C%8C%EC%9D%BC%EB%AA%85%EC%9C%BC%EB%A1%9C-%EC%97%85%EB%A1%9C%EB%93%9C%ED%95%A0-%EA%B2%BD%EC%9A%B0)
+    - [**[추가 발생 문제] 사용자가 S3에 직접 업로드하는 방법은 위험하다**](#%EC%B6%94%EA%B0%80-%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-s3%EC%97%90-%EC%A7%81%EC%A0%91-%EC%97%85%EB%A1%9C%EB%93%9C%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95%EC%9D%80-%EC%9C%84%ED%97%98%ED%95%98%EB%8B%A4)
   - [1.3 보안을 지켜 주는 AWS Pre-signedURL](#13-%EB%B3%B4%EC%95%88%EC%9D%84-%EC%A7%80%EC%BC%9C-%EC%A3%BC%EB%8A%94-aws-pre-signedurl)
-    - [**[⚠️번외 문제] DNS 관련 오류 및 해결**](#%E2%9A%A0%EF%B8%8F%EB%B2%88%EC%99%B8-%EB%AC%B8%EC%A0%9C-dns-%EA%B4%80%EB%A0%A8-%EC%98%A4%EB%A5%98-%EB%B0%8F-%ED%95%B4%EA%B2%B0)
+    - [**[번외 문제] DNS 관련 오류 및 해결**](#%EB%B2%88%EC%99%B8-%EB%AC%B8%EC%A0%9C-dns-%EA%B4%80%EB%A0%A8-%EC%98%A4%EB%A5%98-%EB%B0%8F-%ED%95%B4%EA%B2%B0)
   - [2.1 이미지 해상도는 그대로 두고 용량만 줄일 수 있는가](#21-%EC%9D%B4%EB%AF%B8%EC%A7%80-%ED%95%B4%EC%83%81%EB%8F%84%EB%8A%94-%EA%B7%B8%EB%8C%80%EB%A1%9C-%EB%91%90%EA%B3%A0-%EC%9A%A9%EB%9F%89%EB%A7%8C-%EC%A4%84%EC%9D%BC-%EC%88%98-%EC%9E%88%EB%8A%94%EA%B0%80)
   - [2.2 quality를 사용하면 용량을 얼마나 줄일 수 있을까?](#22-quality%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%98%EB%A9%B4-%EC%9A%A9%EB%9F%89%EC%9D%84-%EC%96%BC%EB%A7%88%EB%82%98-%EC%A4%84%EC%9D%BC-%EC%88%98-%EC%9E%88%EC%9D%84%EA%B9%8C)
   - [3.1 어떤 방법으로 이미지를 자를까? UX UI구성하기](#31-%EC%96%B4%EB%96%A4-%EB%B0%A9%EB%B2%95%EC%9C%BC%EB%A1%9C-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%A5%BC-%EC%9E%90%EB%A5%BC%EA%B9%8C-ux-ui%EA%B5%AC%EC%84%B1%ED%95%98%EA%B8%B0)
   - [3.2 사용자가 잘라낼 Overlay 영역과 조절할 Handle 구하기](#32-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-%EC%9E%98%EB%9D%BC%EB%82%BC-overlay-%EC%98%81%EC%97%AD%EA%B3%BC-%EC%A1%B0%EC%A0%88%ED%95%A0-handle-%EA%B5%AC%ED%95%98%EA%B8%B0)
   - [3.3 Handle을 통한 지정 영역 조정하기, 캔버스 좌표 기반 움직임 구현](#33-handle%EC%9D%84-%ED%86%B5%ED%95%9C-%EC%A7%80%EC%A0%95-%EC%98%81%EC%97%AD-%EC%A1%B0%EC%A0%95%ED%95%98%EA%B8%B0-%EC%BA%94%EB%B2%84%EC%8A%A4-%EC%A2%8C%ED%91%9C-%EA%B8%B0%EB%B0%98-%EC%9B%80%EC%A7%81%EC%9E%84-%EA%B5%AC%ED%98%84)
-    - [**[⚠️ 발생 문제] 사용자가 지정한 영역이 너무 작아서 추출할 값이 없다**](#%E2%9A%A0%EF%B8%8F-%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-%EC%A7%80%EC%A0%95%ED%95%9C-%EC%98%81%EC%97%AD%EC%9D%B4-%EB%84%88%EB%AC%B4-%EC%9E%91%EC%95%84%EC%84%9C-%EC%B6%94%EC%B6%9C%ED%95%A0-%EA%B0%92%EC%9D%B4-%EC%97%86%EB%8B%A4)
+    - [**[발생 문제] 사용자가 지정한 영역이 너무 작아서 추출할 값이 없다**](#%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-%EC%A7%80%EC%A0%95%ED%95%9C-%EC%98%81%EC%97%AD%EC%9D%B4-%EB%84%88%EB%AC%B4-%EC%9E%91%EC%95%84%EC%84%9C-%EC%B6%94%EC%B6%9C%ED%95%A0-%EA%B0%92%EC%9D%B4-%EC%97%86%EB%8B%A4)
   - [3.4 지정한 영역을 잘라내기](#34-%EC%A7%80%EC%A0%95%ED%95%9C-%EC%98%81%EC%97%AD%EC%9D%84-%EC%9E%98%EB%9D%BC%EB%82%B4%EA%B8%B0)
-- [🟦 회고](#%F0%9F%9F%A6-%ED%9A%8C%EA%B3%A0)
+- [회고](#%ED%9A%8C%EA%B3%A0)
 
 <br/><br/>
 
-# 🟦 개발 배경
+# 개발 배경
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/fe74420b-59f4-47eb-a098-b0a4959925b8"> 
@@ -57,7 +57,7 @@ Notion과 같은 협업 도구를 사용하다 보면 이미지 업로드 용량
 
 <br/><br/>
 
-# 🟦 주요 기능 및 환경 소개
+# 주요 기능 및 환경 소개
 
 ## 1.1 핵심 기능 소개
 
@@ -69,7 +69,7 @@ Notion과 같은 협업 도구를 사용하다 보면 이미지 업로드 용량
 
 ## 1.2 기술 스택 및 환경
 
-### **⚙️ Frontend**
+### **Frontend**
 
 | 사용 툴      | 역할           |
 | ------------ | -------------- |
@@ -77,7 +77,7 @@ Notion과 같은 협업 도구를 사용하다 보면 이미지 업로드 용량
 | Zustand      | 전역 상태 관리 |
 | Tailwind CSS | 스타일링       |
 
-### **⚙️ Backend**
+### **Backend**
 
 | 사용 툴              | 역할                                |
 | -------------------- | ----------------------------------- |
@@ -87,7 +87,7 @@ Notion과 같은 협업 도구를 사용하다 보면 이미지 업로드 용량
 | CloudFront + Route53 | CDN 및 도메인 관리                  |
 | DynamoDB             | 데이터베이스                        |
 
-### **⚙️ 배포 & 빌드**
+### **배포 & 빌드**
 
 | 사용 툴 | 역할        |
 | ------- | ----------- |
@@ -126,7 +126,7 @@ Node.js 기반으로 개발하는 것도 좋은 경험이 될 것이라 생각�
 
 <br/><br/>
 
-# 🟦 세부 구현 사항
+# 세부 구현 사항
 
 ## 1.1 등록한 이미지는 어디로 저장 되는가
 
@@ -161,7 +161,7 @@ Amazon S3에서 이미지를 저장하기 위해서는 **해당 S3 버킷에 정
   <img src="https://github.com/user-attachments/assets/12c9f9f3-3df2-496d-a8c6-6d076449c829">
 </p>
 
-### **[⚠️ 발생 문제] S3에 동일한 파일명으로 업로드할 경우**
+### **[발생 문제] S3에 동일한 파일명으로 업로드할 경우**
 
 ![URL중복이름문제제.png](https://github.com/user-attachments/assets/c09bcb31-7a0b-4382-b017-827d4fa726c1)
 
@@ -205,7 +205,7 @@ Uncaught TypeError: Cannot assign to read only property 'name' of object '[objec
 이로써 사용자가 이미지를 등록하여 S3 저장소에 저장하는 초기 플로우 작업을 완료했지만, 추가 새로운 **문제**를 마주하게 되었습니다.
 <br/>
 
-### **[⚠️추가 발생 문제] 사용자가 S3에 직접 업로드하는 방법은 위험하다**
+### **[추가 발생 문제] 사용자가 S3에 직접 업로드하는 방법은 위험하다**
 
 > 1. **클라이언트에서 직접 이미지를 등록하는 방식은 보안 상 권장되지 않았습니다.** <br/>
 >    클라이언트 코드에 API 키나 자격 증명이 포함될 경우, 이를 탈취 당해 악용할 수 있습니다.
@@ -236,7 +236,7 @@ pre-signed URL을 적용한 흐름에서 볼 수 있듯이 클라이언트가 �
 
 이것으로 **사용자는** ImagePlace가 제공하는 **S3에 대해 이미지를 등록할 수 있도록 허용을 받아 유효기간 7일 동안 URL을 사용** 수 있게 되는 것 입니다!
 
-### **[⚠️번외 문제] DNS 관련 오류 및 해결**
+### **[번외 문제] DNS 관련 오류 및 해결**
 
 > 1. **Lambda를 통해 S3 업로드가 에러 코드 없이 등록이 잘 되지만 발급 받은 URL링크를 연결할 수 없다는 현상을 발견했습니다.** <br/> > **[오류 코드 내용]** "dns_probe_finished_nxdomain" → DNS에서 해당 도메인을 찾지 못한다는 의미
 
@@ -440,7 +440,7 @@ const mouseY = event.clientY - rect.top;
 
 이 변위를 기반으로, activeHandle(현재 조절 중인 handle)에 따라 지정 영역의 좌표와 크기를 업데이트합니다.예를 들어, 좌측 상단의 빨간 handle을 드래그 하면, 지정 영역의 `x`, `y` 값이 증가하면서 `width`와 `height`는 감소하게 됩니다.
 
-### **[⚠️ 발생 문제] 사용자가 지정한 영역이 너무 작아서 추출할 값이 없다**
+### **[발생 문제] 사용자가 지정한 영역이 너무 작아서 추출할 값이 없다**
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/aa76b444-b7b6-4a3e-9c49-b4d77463120c"> 
@@ -487,7 +487,7 @@ const cropCtx = cropCanvas.getContext("2d");
 
 <br/><br/>
 
-# 🟦 회고
+# 회고
 
 프로젝트를 시작하기 전, 저는 여러 두려움에 사로잡혀 있었습니다. 특히 백엔드 부분도 작업하게 됨과 동시에 AWS와 같이 한 번도 사용해본 적 없는 클라우드 서비스를 다루어야 한다는 부담이 컸습니다. AWS의 방대한 정책 설정부터 복잡한 API 구성까지, 익숙하지 않은 영역에서 하나하나 지원하는 서비스들을 이해해 나가는 과정은 큰 도전이었습니다.
 
