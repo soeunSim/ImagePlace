@@ -5,7 +5,7 @@
 
   src:
     url("./Paperlogy-8-ExtraBold.ttf") format("truetype"),
-    url("./Paperlogy-8-ExtraBold.woff") format("woff"),
+    url("./Paperlogy-8-ExtraBold-woff.woff") format("woff"),
     url("./Paperlogy-8-ExtraBold-eot.eot?iefix") format("embedded-opentype");
 }
 
