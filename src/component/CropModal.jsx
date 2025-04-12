@@ -35,7 +35,17 @@ export default function CropModal({
   const overlayCanvasRef = useRef(null);
   const didInitRef = useRef(false);
 
+  const alertShownRef = useRef(false);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (window.innerWidth < 690 && !alertShownRef.current) {
+      alertShownRef.current = true;
+      alert("모바일에서는 크롭 기능을 지원하지 않습니다. PC에서 이용해주세요.");
+      setIsShowCropModal(false);
+    }
+  }, [setIsShowCropModal]);
 
   useEffect(() => {
     if (selectFile) {
@@ -100,7 +110,6 @@ export default function CropModal({
 
     baseCanvas.width = CANVASWIDTH * dpr;
     baseCanvas.height = CANVASHEIGHT * dpr;
-
     ctx.scale(dpr, dpr);
 
     baseCanvas.style.width = `${CANVASWIDTH}px`;
@@ -159,9 +168,7 @@ export default function CropModal({
 
       overlayCanvas.width = CANVASWIDTH * dpr;
       overlayCanvas.height = CANVASHEIGHT * dpr;
-
       overlayCtx.scale(dpr, dpr);
-
       overlayCanvas.style.width = `${CANVASWIDTH}px`;
       overlayCanvas.style.height = `${CANVASHEIGHT}px`;
 
@@ -359,7 +366,7 @@ export default function CropModal({
 
   return (
     <div className="absolute w-full h-dvh left-0 bg-gray-950/50">
-      <div className="w-[700px] absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 bg-white rounded-md">
+      <div className="w-full sm:w-[700px] absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 bg-white rounded-md">
         <div className={`relative w-[680px] h-[400px]`}>
           <canvas
             ref={baseCanvasRef}
@@ -367,7 +374,7 @@ export default function CropModal({
           />
           <canvas
             ref={overlayCanvasRef}
-            className={`absolute top-0 left-0`}
+            className="absolute top-0 left-0"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
