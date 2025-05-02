@@ -17,16 +17,18 @@ ImagePlace는 이미지 등록 시 <br/> 일회성으로 고유한 URL을 제공
 # 목차
 
 - [개발 배경](#%EA%B0%9C%EB%B0%9C-%EB%B0%B0%EA%B2%BD)
-- [주요 기능 및 환경 소개](#%EC%A3%BC%EC%9A%94-%EA%B8%B0%EB%8A%A5-%EB%B0%8F-%ED%99%98%EA%B2%BD-%EC%86%8C%EA%B0%9C)
-  - [1.1 핵심 기능 소개](#11-%ED%95%B5%EC%8B%AC-%EA%B8%B0%EB%8A%A5-%EC%86%8C%EA%B0%9C)
+- [기능 및 환경 소개](#%EA%B8%B0%EB%8A%A5-%EB%B0%8F-%ED%99%98%EA%B2%BD-%EC%86%8C%EA%B0%9C)
+  - [1.1 구현화면 및 기능 소개](#11-%EA%B5%AC%ED%98%84%ED%99%94%EB%A9%B4-%EB%B0%8F-%EA%B8%B0%EB%8A%A5-%EC%86%8C%EA%B0%9C)
   - [1.2 기술 스택 및 환경](#12-%EA%B8%B0%EC%88%A0-%EC%8A%A4%ED%83%9D-%EB%B0%8F-%ED%99%98%EA%B2%BD)
     - [**Frontend**](#frontend)
     - [**Backend**](#backend)
     - [**배포 & 빌드**](#%EB%B0%B0%ED%8F%AC--%EB%B9%8C%EB%93%9C)
   - [1.3 상태관리는 어떻게? Zustand vs Redux vs useContext](#13-%EC%83%81%ED%83%9C%EA%B4%80%EB%A6%AC%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-zustand-vs-redux-vs-usecontext)
-  - [1.4 호스팅 서비스, 서버리스 Lambda로 해결하자!](#14-%ED%98%B8%EC%8A%A4%ED%8C%85-%EC%84%9C%EB%B9%84%EC%8A%A4-%EC%84%9C%EB%B2%84%EB%A6%AC%EC%8A%A4-lambda%EB%A1%9C-%ED%95%B4%EA%B2%B0%ED%95%98%EC%9E%90)
+  - [1.4 호스팅 서비스, 왜 서버리스 Lambda인가?](#14-%ED%98%B8%EC%8A%A4%ED%8C%85-%EC%84%9C%EB%B9%84%EC%8A%A4-%EC%99%9C-%EC%84%9C%EB%B2%84%EB%A6%AC%EC%8A%A4-lambda%EC%9D%B8%EA%B0%80)
 - [세부 구현 사항](#%EC%84%B8%EB%B6%80-%EA%B5%AC%ED%98%84-%EC%82%AC%ED%95%AD)
   - [1.1 등록한 이미지는 어디로 저장 되는가](#11-%EB%93%B1%EB%A1%9D%ED%95%9C-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%8A%94-%EC%96%B4%EB%94%94%EB%A1%9C-%EC%A0%80%EC%9E%A5-%EB%90%98%EB%8A%94%EA%B0%80)
+    - [**[의문] 왜 일반 데이터베이스가 아닐까?**](#%EC%9D%98%EB%AC%B8-%EC%99%9C-%EC%9D%BC%EB%B0%98-%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4%EA%B0%80-%EC%95%84%EB%8B%90%EA%B9%8C)
+    - [**[해결] 왜 Amazon S3인가**](#%ED%95%B4%EA%B2%B0-%EC%99%9C-amazon-s3%EC%9D%B8%EA%B0%80)
   - [1.2 이미지를 저장하기 위해 필요한 설정은?](#12-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%A5%BC-%EC%A0%80%EC%9E%A5%ED%95%98%EA%B8%B0-%EC%9C%84%ED%95%B4-%ED%95%84%EC%9A%94%ED%95%9C-%EC%84%A4%EC%A0%95%EC%9D%80)
     - [**[발생 문제] S3에 동일한 파일명으로 업로드할 경우**](#%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-s3%EC%97%90-%EB%8F%99%EC%9D%BC%ED%95%9C-%ED%8C%8C%EC%9D%BC%EB%AA%85%EC%9C%BC%EB%A1%9C-%EC%97%85%EB%A1%9C%EB%93%9C%ED%95%A0-%EA%B2%BD%EC%9A%B0)
     - [**[추가 발생 문제] 사용자가 S3에 직접 업로드하는 방법은 위험하다**](#%EC%B6%94%EA%B0%80-%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-s3%EC%97%90-%EC%A7%81%EC%A0%91-%EC%97%85%EB%A1%9C%EB%93%9C%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95%EC%9D%80-%EC%9C%84%ED%97%98%ED%95%98%EB%8B%A4)
@@ -37,19 +39,16 @@ ImagePlace는 이미지 등록 시 <br/> 일회성으로 고유한 URL을 제공
   - [3.1 어떤 방법으로 이미지를 자를까? UX UI구성하기](#31-%EC%96%B4%EB%96%A4-%EB%B0%A9%EB%B2%95%EC%9C%BC%EB%A1%9C-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%A5%BC-%EC%9E%90%EB%A5%BC%EA%B9%8C-ux-ui%EA%B5%AC%EC%84%B1%ED%95%98%EA%B8%B0)
   - [3.2 사용자가 잘라낼 Overlay 영역과 조절할 Handle 구하기](#32-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-%EC%9E%98%EB%9D%BC%EB%82%BC-overlay-%EC%98%81%EC%97%AD%EA%B3%BC-%EC%A1%B0%EC%A0%88%ED%95%A0-handle-%EA%B5%AC%ED%95%98%EA%B8%B0)
   - [3.3 Handle을 통한 지정 영역 조정하기, 캔버스 좌표 기반 움직임 구현](#33-handle%EC%9D%84-%ED%86%B5%ED%95%9C-%EC%A7%80%EC%A0%95-%EC%98%81%EC%97%AD-%EC%A1%B0%EC%A0%95%ED%95%98%EA%B8%B0-%EC%BA%94%EB%B2%84%EC%8A%A4-%EC%A2%8C%ED%91%9C-%EA%B8%B0%EB%B0%98-%EC%9B%80%EC%A7%81%EC%9E%84-%EA%B5%AC%ED%98%84)
+    - [**[개선점] useState 상태 관리, 그리고 useRef 기반 성능 최적화 고려**](#%EA%B0%9C%EC%84%A0%EC%A0%90-usestate-%EC%83%81%ED%83%9C-%EA%B4%80%EB%A6%AC-%EA%B7%B8%EB%A6%AC%EA%B3%A0-useref-%EA%B8%B0%EB%B0%98-%EC%84%B1%EB%8A%A5-%EC%B5%9C%EC%A0%81%ED%99%94-%EA%B3%A0%EB%A0%A4)
     - [**[발생 문제] 사용자가 지정한 영역이 너무 작아서 추출할 값이 없다**](#%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-%EC%A7%80%EC%A0%95%ED%95%9C-%EC%98%81%EC%97%AD%EC%9D%B4-%EB%84%88%EB%AC%B4-%EC%9E%91%EC%95%84%EC%84%9C-%EC%B6%94%EC%B6%9C%ED%95%A0-%EA%B0%92%EC%9D%B4-%EC%97%86%EB%8B%A4)
   - [3.4 지정한 영역을 잘라내기](#34-%EC%A7%80%EC%A0%95%ED%95%9C-%EC%98%81%EC%97%AD%EC%9D%84-%EC%9E%98%EB%9D%BC%EB%82%B4%EA%B8%B0)
 - [회고](#%ED%9A%8C%EA%B3%A0)
 
+<!-- tocstop -->
+
 <br/><br/>
 
 # 개발 배경
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/fe74420b-59f4-47eb-a098-b0a4959925b8"> 
-</p>
-
-<br/>
 
 Notion과 같은 협업 도구를 사용하다 보면 이미지 업로드 용량 제한 때문에 원하는 이미지를 자유롭게 활용하기 어려웠던 경험이 있으실 겁니다. 이럴 때 필요한 것은 이미지 호스팅 서비스이지만, **등록된 이미지가 다른 사람에게 노출되지 않고, 고용량 이미지를 압축 후 저장하며, 단기간 보관**되어 신경 쓸 필요 없는 서비스는 쉽게 찾기 어려웠습니다.
 
@@ -57,13 +56,40 @@ Notion과 같은 협업 도구를 사용하다 보면 이미지 업로드 용량
 
 <br/><br/>
 
-# 주요 기능 및 환경 소개
+# 기능 및 환경 소개
 
-## 1.1 핵심 기능 소개
+## 1.1 구현화면 및 기능 소개
 
-- 등록 후 **단기간 동안 이미지 보관 & URL 제공** 합니다.
-- 고용량 이미지의 경우 **해상도를 유지한 채 압축**을 제공합니다.
-- 사용자가 **이미지에서 원하는 영역을 직접 Crop** 할 수 있습니다.
+<table>
+  <tr>
+    <td width="60%" align="center">
+      <img width="553" center height="334" style="display:inline-block;" src="https://github.com/user-attachments/assets/4dcf96fc-fc85-4991-97b3-e9c06847b10e" />
+    </td>
+    <td width="40%">
+      * 메인 페이지<br /><br />
+      좌측 박스는 드래그 드롭으로 등록이 가능하며 드래그 드롭 후 바로 이미지 호스팅이 실행됩니다. 우측 input 박스의 경우 클릭하여 이미지 등록이 가능합니다.
+      고용량 이미지(2MB이상) 해상도를 유지한 채 압축을 제공합니다.
+    </td>
+  </tr>
+  <tr>
+    <td width="60%" align="center">
+      <img width="503" center height="324" style="display:inline-block;" src="https://github.com/user-attachments/assets/4ccf1e92-6b3a-471c-a2dc-c3464fd506f8" />
+    </td>
+    <td width="40%">
+      * 호스팅 페이지<br /><br />
+      사용자가 등록한 이미지의 호스팅을 제공하는 페이지 입니다. 최상단은 호스팅 기간이 유효하는 동안 사용자가 접근할 수 있는 제공페이지의 URL입니다. 하단은 이미지의 호스팅 URL, 마크업 및 태그가 적용 된 URL입니다.
+    </td>
+  </tr> 
+  <tr>
+    <td width="60%" align="center">
+      <img width="503" center height="324" style="display:inline-block;" src="https://github.com/user-attachments/assets/c2bf162d-703a-4bb4-a618-6f132d6642d9" />
+    </td>
+    <td width="40%">
+      * 편집(자르기) 페이지<br /><br />
+      사용자가 등록한 이미지의 호스팅을 제공하는 페이지 입니다. 최상단은 호스팅 기간이 유효하는 동안 사용자가 접근할 수 있는 제공페이지의 URL입니다. 하단은 이미지의 호스팅 URL, 마크업 및 태그가 적용 된 URL입니다.
+    </td>
+  </tr>  
+</table>
 
 <br/>
 
@@ -104,15 +130,18 @@ Zustand를 사용하여, 프로젝트 핵심 상태인 **사용자가 등록한 
 | 장점 | 1. 가벼운 보일러플레이트로 전역 상태 관리를 빠르게 적용 가능. <br/>2. 상태 변경 시 필요한 컴포넌트만 리렌더링되도록 최적화. | 1. 대규모 애플리케이션에 적합하며, 커뮤니티가 활성화 되어있음. | 1. 별도의 라이브러리 설치가 필요없는 React 내장 기능으로, 작은 규모의 애플리케이션에 적합.<br/> 2. 러닝커브가 낮음. |
 | 단점 | 비교적 새로운 라이브러리이므로, 사용 사례에 대한 자료가 적음. | 초기 설정과 코드 구조가 복잡하여 보일러플레이트가 무겁고 러닝커브가 높음. | useContext를 가지고 있지 않는 곳이라면 컴포넌트의 재활용이 어려움. |
 
-프로젝트 구조 상 각 컴포넌트들이 형제컴포넌트로 존재하기 때문에 공유해야 할 상태(사용자가 등록한 파일의 정보, 로딩상태)를 prop으로 내려주기 어려워 전역으로 관리하게 되었고 상대적으로 러닝커브가 낮고 적은 리랜더를 발생시키는 **Zustand**를 택하게 되었습니다.<br/><br/>
+프로젝트 구조 상 각 컴포넌트들이 형제컴포넌트로 존재하기 때문에 공유해야 할 상태(사용자가 등록한 파일의 정보, 로딩상태)를 prop으로 내려주기 어려워 전역으로 관리하게 되었고 상대적으로 러닝커브가 낮고 적은 리랜더를 발생시키는 **Zustand**를 택하게 되었습니다.<br/><br/><br/>
 
-## 1.4 호스팅 서비스, 서버리스 Lambda로 해결하자!
+## 1.4 호스팅 서비스, 왜 서버리스 Lambda인가?
 
 ImagePlace는 **AWS에서 제공하는 Lambda를 사용하여 구축**하였습니다. <br/>
 
-서버를 단순히 정의하자면 클라이언트의 요청을 받아 요청에 대한 데이터를 제공하는 컴퓨터 혹은 프로그램입니다. 이미지 호스팅 서비스라면 사용자가 이미지를 등록 후 **URL을 요청** 을 하기 때문에 프로젝트에서 **서버의 구현은 필수적** 이었습니다.
+**서버**는 “클라이언트(브라우저) → 이미지 업로드 **요청(request)** → 처리 결과(URL) **응답(response)** 반환” 흐름에서
+**요청**을 받아 → **응답**을 반환하는 역할을 합니다. 이미지 호스팅 서비스라면 **이미지 업로드 → URL 발급** 같은 요청-응답을 처리해야 하므로 프로젝트에서 **서버의 구현은 필수적** 이었습니다.
 
-그럼 어떻게 서버를 만들면 좋을까요? 초기에는 자체 서버 개발만이 유일한 선택지라고 생각했습니다. 하지만 개발 환경에 대한 조사를 진행하면서 **서버리스(Serverless)** 라는 개념을 접하게 되었습니다. 서버리스란, 직접 서버를 관리하지 않아도 되는 방식을 의미하지만, 이는 서비스 제공에 필수적인 저장소 등 다양한 인프라 요소가 제외된다는 뜻은 아닙니다.
+그럼 어떻게 서버를 만들면 좋을까요? 초기에는 자체 서버 개발만이 유일한 선택지라고 생각으나 개발 환경에 대한 조사를 진행하면서 **서버리스(Serverless)** 라는 개념을 접하게 되었습니다.<br/>
+
+**서버리스(Serverless)** 는 “개발자가 서버 컴퓨터를 직접 설치·운영하거나, 업데이트·모니터링하지 않아도, 클라우드 서비스가 대신 요청을 받아 처리해 주는 방식”을 말합니다. 서버리스를 제공하는 AWS의 경우 내부적으로 AWS Lambda, S3, API Gateway 같은 서비스가 동작하며, 사용자는 별도 서버 관리 없이 기능만 손쉽게 이용할 수 있습니다.
 
 결정하기 앞서, 자체 서버 개발 환경의 **node.js+express** 와 **AWS Lambda** 를 비교해 보았었습니다.
 
@@ -122,6 +151,7 @@ ImagePlace는 **AWS에서 제공하는 Lambda를 사용하여 구축**하였습�
 | 단점 | 1. 여러 함수 및 AWS의 다른 서비스(API Gateway, S3 등)와 연계하여 사용하는 경우, 각각의 설정 오류나 권한 과잉 문제를 겪을 수 있음.<br/>2. AWS가 인프라의 대부분을 관리하기 때문에, 사용자가 서버 설정을 직접 수정하거나 제어하기 어려움. | 1. 잘못된 서버 설정, 부적절한 CORS 정책을 설정 할 우려. <br/> 2. 서버 OS 및 네트워크 장비 등 직접 관리하는 경우, 미흡한 보안이 발생 할 수 있음. |
 
 Node.js 기반으로 개발하는 것도 좋은 경험이 될 것이라 생각했지만, 보안 정책을 세밀하게 제어해야 하는 부담과 러닝 커브로 인해 프로젝트 기간 내 구현에 대한 우려가 있었습니다. <br/>
+
 반면, AWS Lambda를 사용하면 보안을 포함한 운영 부담을 줄일 수 있고, 서버에서 처리할 함수의 수가 많지 않기 때문에 설정 오류에 대한 걱정도 덜 수 있어 **최종적으로 AWS Lambda 서비스를 사용하기로 결정**했습니다.
 
 <br/><br/>
@@ -130,45 +160,64 @@ Node.js 기반으로 개발하는 것도 좋은 경험이 될 것이라 생각�
 
 ## 1.1 등록한 이미지는 어디로 저장 되는가
 
-사용자가 등록한 이미지는 **AWS의 S3 저장소**로 등록이 됩니다.<br/>
+사용자가 이미지를 업로드하면, 그 파일은 **Amazon S3(Simple Storage Service)** 라는 클라우드 저장소에 보관됩니다.<br/>
 
-이미지 파일은 data는 크기가 큰 이진 데이터(binary data)를 포함하고 있어 관계형 데이터베이스 또는 NoSQL 데이터베이스에 저장하면 데이터베이스가 무거워져서 성능 에 영향을 줄 수 있습니다. 그럼 이 이미지 파일은 어떻게 저장을 시켜야 되는 걸까요?
+### **[의문] 왜 일반 데이터베이스가 아닐까?**
 
-이미지 파일 저장을 위한 **대용량 파일 전송에 최적화 된 스토리지 서비스가 존재**했습니다!
+이미지 파일은 수십 MB가 넘는 **이진 데이터(binary)** 를 담고 있습니다.  
+이런 큰 파일을 MySQL, MongoDB 같은 데이터베이스에 넣으면 데이터베이스 용량이 커져서 읽기·쓰기 속도가 느려지고 관리 비용이 올라갑니다.
 
-여러 서비스 중에서, **Amazon S3**가 서버리스 환경 구축, DB 서비스 등 다양한 통합 서비스를 제공하는 점에서 우위를 점 한다고 판단하였고 실제로 Amazon 서비스에서 제공하는 또 다른 서비스 Lambda와도 쉽게 연계를 할 수 있는 점을 확인했습니다. 때문에 최종적으로 Amazon S3를 채택하여 이미지 저장소를 생성하게 되었습니다.
+### **[해결] 왜 Amazon S3인가**
+
+**Amazon S3**는 “대용량 파일 전송·저장”에 최적화된 서비스입니다.  
+여러 서비스 중에서, **Amazon S3**를 택한 이유는 다른 AWS 서비스와 손쉬운 연동\*\*(Lambda, CloudFront 등) 할 수 있는 점을 확인했습니다.
+때문에 최종적으로 Amazon S3를 채택하여 이미지 저장소를 생성하게 되었습니다.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e859b658-ba57-4acd-b756-1195ed18f0d3">
+  <img width="650" alt="aws구성" src="https://github.com/user-attachments/assets/abd030cb-4efd-40b4-ba6b-c71385a937f7" />
 </p>
 <p align="center">
   <img src="https://github.com/user-attachments/assets/bd6e0175-adc4-4a0a-ad4e-f10f6d6b80eb">
 </p>
 
+이처럼, **빈번히 변경되고 크기가 큰 이미지**는 데이터베이스 대신 **S3**에 저장함으로써 서비스 안정성과 성능을 동시에 확보할 수 있었습니다.
+
 <br/>
 
 ## 1.2 이미지를 저장하기 위해 필요한 설정은?
 
-Amazon S3에서 이미지를 저장하기 위해서는 **해당 S3 버킷에 정책 설정**이 필요했습니다.<br/>
-
-별도로 제공하는 라이브러리 코드가 있었지만 그것 만으로는 S3에 이미지를 저장할 수 없었기 때문입니다.
-
-정책 설정이란, 사용자가 서비스를 통해 버킷으로 파일 업로드할 때 S3에게 요청을 허용할 수 있도록 파일 업로드를 할 최소한의 설정 그리고 IAM 정책(`s3:PutObject` , `s3:getObject` ) 그리고 CORS(Cross-Origin Resource Sharing) 규칙 등의 설정을 이야기합니다.
-
-위에 언급한 설정들을 통해 S3 저장소에 정상적으로 업로드가 되는 것을 확인했으나, **예상치 못 한 문제가 발생**하였습니다.
+Amazon S3에서 이미지를 S3에 저장하려면, 즉 클라이언트가 S3 버킷에 접근하려면
+“누가(인증) → 어떤 파일(권한) → 어디서(출처)” 업로드할지 **3가지 설정**이 필요합니다.<br/>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/12c9f9f3-3df2-496d-a8c6-6d076449c829">
+  <img width="503" alt="버킷설정" src="https://github.com/user-attachments/assets/b3954deb-83f3-41f1-bfd8-585600587f6b" />
 </p>
+
+1. **IAM 권한 설정**
+
+   - `s3:PutObject`, `s3:GetObject` 권한을 가진 역할(Role) 또는 사용자(User)를 만들어야 합니다.
+
+2. **버킷 정책(Bucket Policy)**
+
+   - 해당 역할/사용자만 특정 버킷에 파일을 올리도록 허용하는 규칙을 추가합니다.
+
+3. **CORS 설정(Cross-Origin Resource Sharing)**
+   - 브라우저가 다른 도메인(내 사이트 → S3)으로 파일을 올릴 때 보안 오류가 나지 않도록 허용 도메인(origin)을 등록합니다.
+
+상단에 언급한 설정들을 통해 S3 저장소에 정상적으로 업로드가 되는 것을 확인했으나, **예상치 못 한 문제가 발생**하였습니다.
+
+<br/>
 
 ### **[발생 문제] S3에 동일한 파일명으로 업로드할 경우**
 
-![URL중복이름문제제.png](https://github.com/user-attachments/assets/c09bcb31-7a0b-4382-b017-827d4fa726c1)
+이미지 업로드 시 **UUID + 확장자** 형태의 고유 파일명을 사용하였습니다.
 
-1. **동일한 파일 명으로 중복 업로드할 경우, 새로운 이미지 업로드가 아닌 기존 이미지가 덮어씌워지는 현상이 발생하였습니다.**
-2. **한글 파일 명으로 업로드 시, 인코딩 문제로 인해 사용자에게 제공되는 URL에 파일명이 깨지는 문제가 있었습니다.**
+![URL중복이름문제.png](https://github.com/user-attachments/assets/c09bcb31-7a0b-4382-b017-827d4fa726c1)
 
-이미지를 S3에 보내기 전, 중복을 피할 수 있는 고유한 파일 명으로 변경하고 그 URL을 받는 방식으로 진행하면, 1번과 2번 문제를 동시에 해결할 수 있다고 판단하였습니다.
+1. **한글 파일 명으로 업로드 시, 인코딩 문제로 인해 등록한 URL의 파일명이 깨지는 문제.**
+2. **동일한 파일 명으로 중복 업로드할 경우, 기존 이미지가 덮어씌워지는 현상이 발생.**
+
+이미지를 S3에 보내기 전, 중복을 피할 수 있는 고유한 파일 명으로 변경 후 해당 URL을 받는 방식으로 진행하면, 1번과 2번 문제를 동시에 해결할 수 있다고 판단하였습니다.
 <br/>
 
 <br/>
@@ -179,15 +228,14 @@ Amazon S3에서 이미지를 저장하기 위해서는 **해당 S3 버킷에 정
 
 <br/>
 
-`UUID`는 일반적으로 랜덤 값, 시간 정보 등 여러 요소를 조합하여 생성되므로 동일한 값이 다시 생성될 가능성은 극히 낮아, 사실상 고유하다고 볼 수 있습니다. <br/>
-다만, 확률적으로 중복 가능성을 완전히 배제하기 어려워, UUID가 이미 사용 중인지 DB에 저장된 값과 비교하여 확인하는 추가 검증 Logic 도입을 고려할 필요가 있다고 판단되었습니다. <br/>
+`UUID`는 일반적으로 랜덤 값, 시간 정보 등 여러 요소를 조합하여 생성되므로 동일한 값이 다시 생성될 가능성은 극히 낮아, 사실상 고유하다고 볼 수 있습니다. 다만, 확률적으로 중복 가능성을 완전히 배제하기 어려워, UUID가 이미 사용 중인지 DB에 저장된 값과 비교하여 확인하는 추가 검증 Logic 도입을 고려할 필요가 있다고 판단되었습니다. <br/>
 
 그러나 프로젝트 규모가 작아 생성될 데이터양이 적을 것으로 추정하여 추후 리팩토링 단계에서 구현하기로 의사결정을 내리게 되었습니다.
 
 이어서 `UUID` 제공하는 고유 값 그대로 파일명을 교체하는 방안으로 검토하던 중, 등록 시 전달되는 file 객체에 name 키가 포함되어 있음을 인지했습니다. 이에 해당 키에 직접 `UUID`를 할당하고자 `file.name = UUID4()`로 값을 변경했으나, Uncaught TypeError가 발생했습니다.
 
 ```jsx
-Uncaught TypeError: Cannot assign to read only property 'name' of object '[object File]'
+Uncaught TypeError: Cannot assign to read only property "name" of object "[object File]"
 ```
 
 에러코드를 확인 후후 `file.name`에 대한 접근이 잘 못 되었을까? 라는 의문이 들게 되었고 공식 문서를 확인한 결과 **`file.name`은 읽기 전용 속성**으로 **직접 수정할 수 없는 것을 발견하였습니다.** [[file api 공식문서]](https://developer.mozilla.org/en-US/docs/Web/API/File)
@@ -203,6 +251,7 @@ Uncaught TypeError: Cannot assign to read only property 'name' of object '[objec
 ![파일명수정Logic.jpg](https://github.com/user-attachments/assets/4adacd14-6482-4c86-a72e-8b7259658fc8)
 
 이로써 사용자가 이미지를 등록하여 S3 저장소에 저장하는 초기 플로우 작업을 완료했지만, 추가 새로운 **문제**를 마주하게 되었습니다.
+
 <br/>
 
 ### **[추가 발생 문제] 사용자가 S3에 직접 업로드하는 방법은 위험하다**
@@ -220,30 +269,35 @@ Uncaught TypeError: Cannot assign to read only property 'name' of object '[objec
 
 그렇다면 어떤 흐름으로 pre-signed URL을 사용해야 할까요?
 
-**[ ❌ 적용 전, 기존 Flow ]**
-
-![preSignedURL적용전.png](https://github.com/user-attachments/assets/c77a702f-42a8-43de-847a-857b7184bcd1)
-
 **[ ✅ pre-signed URL 적용 후, Flow ]**
 
-![preSignedURL적용후.png](https://github.com/user-attachments/assets/37ba1be4-e084-413c-badb-2e57197c6dec)
+<img width="850" alt="preSignedURL적용후" src="https://github.com/user-attachments/assets/8abf703c-0149-4baa-bccf-46c7c17ad2aa" />
 
-pre-signed URL을 적용한 흐름에서 볼 수 있듯이 클라이언트가 이미지 파일을 Lambda에게 주고 **Lambda 에서는 미리 도메인과 UUID 기반 파일 명을 이용해 최종 파일 URL(finalFileUrl)을 생성**해두고 있습니다.
+1. 클라이언트가 이미지를 등록하여 서버리스 서비스인 Lambda에게 pre-signed URL을 요청(POST)합니다.
+2. Lambda는 클라이언트가 전달 준 이미지를 기반으로 pre-signed URL를 생성하여 클라이언트에게 응답합니다.
+3. Lambda는 클라이언트에게 pre-signed URL 정보를 응답함과 동시에 DB에도 해당 정보를 저장해 둡니다.
+4. 클라이언트는 응답 받은 pre-signed URL을 S3에게 다시 전달(PUT)합니다.
+5. S3안의 버킷에 보안 서명이 된 이미지가 저장이 됩니다.
 
-이 URL은 S3에 실제 파일이 업로드 되기 전에 미리 구성된 것으로 사용자는 URL을 알고 있기 때문에, pre-signed URL로 S3에 파일을 PUT 요청하여 업로드한 후, 해당 URL로 접근하게 되는 것입니다.
-아래는 pre-signed URL을 적용한 Lambda에서의 Logic입니다.<br/>
+즉, 사용자가 전달 받는 URL은 S3에 실제 파일이 업로드 되기 전에 미리 구성된 것으로 서버에게 응답 받은 pre-signed URL로 S3에 파일을 PUT 요청하여 업로드한 후, 해당 URL로 접근하게 되는 것입니다.
+아래는 pre-signed URL을 적용한 Lambda에서의 Logic입니다.
+
+<br/>
+
 ![pre-signed적용한Logic.jpg](https://github.com/user-attachments/assets/684884dc-7d10-41ec-9a59-11b01f2d25f6)
 
 이것으로 **사용자는** ImagePlace가 제공하는 **S3에 대해 이미지를 등록할 수 있도록 허용을 받아 유효기간 7일 동안 URL을 사용** 수 있게 되는 것 입니다!
 
+<br/>
+
 ### **[번외 문제] DNS 관련 오류 및 해결**
 
-> 1. **Lambda를 통해 S3 업로드가 에러 코드 없이 등록이 잘 되지만 발급 받은 URL링크를 연결할 수 없다는 현상을 발견했습니다.** <br/> > **[오류 코드 내용]** "dns_probe_finished_nxdomain" → DNS에서 해당 도메인을 찾지 못한다는 의미
+> 1. **Lambda를 통해 S3 업로드가 에러 코드 없이 등록이 잘 되지만 발급 받은 URL링크를 연결할 수 없다는 현상을 발견했습니다.** <br/> **[오류 코드 내용]** "dns_probe_finished_nxdomain" → DNS에서 해당 도메인을 찾지 못한다는 의미
 
 </aside>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e8cc9ffc-47ef-422c-a923-dcffcf9bd7be">
+  <img width="850" alt="버킷에_연결한_DNS" src="https://github.com/user-attachments/assets/83735286-9dbc-4f7b-9ba2-77ca8bfe704d" />
 </p>
 
 CloudFront는 CDN(콘텐츠 전송 네트워크)로 Lambda 함수는 파일이 업로드 될 S3 버킷 안에 있는 이미지의 위치를 기반으로 미리 최종 접근 URL을 생성할 때 CloudFront 도메인을 사용합니다.
@@ -267,13 +321,14 @@ CloudFront는 CDN(콘텐츠 전송 네트워크)로 Lambda 함수는 파일이 �
 
 <br/>
 
-**[💻 문제의 자료 사진]**
+**[💻 CloudFront와 Route53 네임서버(NS) 불일치 자료 사진]**
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/57de108f-78c7-4ce0-87f6-1ded8a2a6571">
+  <img src="https://github.com/user-attachments/assets/7b4da2f9-49b2-4eaf-aad8-943730765d41">
 </p>
-CloudFront 도메인과 Route53의 네임서버(NS) 불일치로 인해 DNS 오류(dns_probe_finished_nxdomain)가 발생하였던 문제였으며
-CloudFront 배포 설정에서 Route53의 레코드 값을 재검토해 일치시켜주어 정상적으로 연결되게 처리하였습니다.
+CloudFront 도메인과 Route53의 네임서버(NS) 불일치로 인해 DNS 오류(dns_probe_finished_nxdomain)가 발생하였던 문제였습니다.
+단순히 CloudFront에 Route53에서 발급한 도메인을 적용시켜 주는 것 뿐만이 아니라
+CloudFront 배포 설정에서 Route53의 레코드 값을 재검토해 일치시켜주어야 했고 정상적으로 연결되게 처리하였습니다.
 
 <br/><br/>
 
@@ -369,29 +424,44 @@ const compressedReduceImage =
 
 ## 3.1 어떤 방법으로 이미지를 자를까? UX UI구성하기
 
-호스팅 flow를 작업하면서 이미지와 연관 된 편집 기능이 있으면 좋을 것 같다고 떠올렸고 단순히 미리 정해진 영역이 아니라, **사용자가 기본 제공 영역을 직접 조절해 원하는 부분만 추출**할 수 있도록 설계하는 것을 목표로 했습니다.
+호스팅 flow를 작업하면서 이미지와 연관 된 편집 기능이 있으면 좋을 것 같다고 떠올렸고, **사용자가 기본 제공 영역을 직접 조절해 원하는 부분만 추출**하는 자르기 기능을 제공할 수 있도록 설계하는 것을 목표로 했습니다.
 
-이 과정에서 카카오톡의 자르기 기능처럼 직관적이고 쉬운 UX UI 구성을 구현해보기로 결정했습니다.
+이 과정에서 카카오톡의 자르기 기능처럼 직관적이고 쉬운 UX UI 구성을 구현해보기로 결정했습니다. <br/>
+아래의 사진 처럼 사용자가 등록한 이미지를 보여주는 `canvas` (아래), 사용자가 이미지를 잘라낼 영역을 정할 수 있는 `canvas`(위) 두가지 `canvas`를 겹쳐 자르기 기능을 구현하는 방향으로 접근하게 되었습니다.
 
 ![image.png](https://github.com/user-attachments/assets/46fa960f-642a-42c6-a06e-1cb422190cb9)
 
-<br/>
+<br/><br/>
 
 ## 3.2 사용자가 잘라낼 Overlay 영역과 조절할 Handle 구하기
 
-이미지를 자를 영역(Overlay)을 만들기 위해, 캔버스 전체에 `fillRect`로 '자르기 상태'를 표현한 뒤, `clearRect`로 선택 가능한 영역을 만들어냅니다. 이때, 사용자가 영역을 조절할 수 있도록 지워진 영역의 네 모서리에 작은 사각형 핸들을 배치하는 것이 핵심입니다.
+사용자가 **자유롭게 이미지를 자를 수 있도록**, 화면 위에 사각형 자르기 영역(Overlay)을 생성하고, 그 네 모서리에 "핸들(Handle)"을 배치해 영역을 직접 조절할 수 있도록 설계했습니다.
 
-먼저 `Canvas`에서 사각형을 그리려면 `x`, `y` 좌표와 `width`, `height`, 총 4가지 인자가 필요합니다. 이 원리를 활용해 사용자가 이미지를 자를 영역(Overlay)을 만들 때는 두 개의 사각형이 필요합니다.
-
-![image.png](https://github.com/user-attachments/assets/5998bc82-e550-4cdd-9f61-581009093903)
-
-첫번째 사각형으로 `fillRect`로 캔버스 전체를 채운 후 두번째 생성한 사각형 `clearRect`로 특정 영역을 지워내어 사용자가 직접 선택할 수 있는 Overlay를 생성할 수있습니다.
-
-만들어진 Overlay영역을 조절할 핸들은 지워진 영역의 네 모서리에 배치되어, 사용자가 선택 영역을 직관적으로 조절할 수 있게 합니다. 아래는 좌측 상단과 우측 상단에 배치할 핸들의 계산 공식입니다.
+이를 위해 가장 먼저, 사용자가 자를 수 있는 영역을 시각적으로 표현할 정적인 배경이 필요했습니다.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/d717e247-a92c-4849-8e11-345ffa851e30"> 
+<img width="511" alt="canvas_설명" src="https://github.com/user-attachments/assets/67ab5858-a668-43f9-bac8-2dda0780bb89" />
 </p>
+이런 배경은 `Canvas`에서 사각형을 그리는 방식으로 구현하며, 하나의 사각형을 정의하려면 `x`, `y` 좌표와 `width`, `height` — 총 4개의 인자가 필요합니다.
+위의 canvas 해당 구조를 활용해 Overlay를 만들기 위해서 두 개의 사각형을 조합해 사용합니다.
+
+<br/>
+
+<p align="center">
+  <img width="805" alt="canvas_설명02" src="https://github.com/user-attachments/assets/bade9c09-f559-43ec-9694-3df4fb62df5b" />
+</p>
+
+1. 첫 번째 사각형에서는 `fillRect()`를 사용해 `canvas` 전체를 채워 "자르기 상태"를 표현합니다.
+2. 그 위에 `clearRect()`를 적용해 사용자가 실제로 선택할 수 있는 투명한 영역을 만들어 Overlay를 구성합니다.
+
+<br/>
+<p align="center">
+  <img alt="canvas_설명02" src="https://github.com/user-attachments/assets/8769b46c-71f2-4532-9559-98cf7473e481" />
+
+</p>
+
+이렇게 만들어진 Overlay 사각형 중 투명한 영역의 네 모서리에 작은 사각형 "핸들(Handle)"을 배치해 사용자가 영역 크기를 직관적으로 조절할 수 있도록 합니다.
+아래는 좌측 상단과 우측 상단에 핸들을 배치할 때의 좌표 계산 방식입니다.
 
 ```js
 // B의 [A]핸들(좌측 상단 모서리) 구하는 공식
@@ -418,14 +488,22 @@ const compressedReduceImage =
 
 ## 3.3 Handle을 통한 지정 영역 조정하기, 캔버스 좌표 기반 움직임 구현
 
-핸들을 활용해 지정 영역을 조정하는 핵심은 **캔버스 내부 좌표를 기반으로 마우스를 눌렀을 때 발생하는 `mousedown` 이벤트를 걸어 주는 것** 입니다. 사용자가 handle을 누르면, 브라우저 좌표에서 캔버스 좌표로 변환하여 마우스의 위치를 정확히 감지하고, 이를 바탕으로 영역의 위치와 크기를 업데이트합니다.
+사용자가 사각형(자르기) 영역을 자유롭게 조절할 수 있도록, 각 ‘핸들’에 `mousedown` 이벤트를 걸어 마우스 움직임을 감지하도록 설계했습니다.  
+핵심은 마우스가 움직인 거리만큼 사각형(자르기)영역의 위치와 크기를 실시간으로 업데이트하는 것입니다.
 
-`canvas`를 기준으로 삼게 된 이유는 사용자가 지정할 영역이 `canvas`의 내부 좌표에 맞춰 설정되기 때문입니다.
+예를 들어 사용자가 핸들을 누르면 `event.clientX`는 화면(뷰포트) 기준 좌표를 반환하지만, 우리가 원하는 건 `canvas` 기준 좌표입니다.
 
-때문에 뷰포트 내 `canvas`요소의 위치를 파악 할 수 있는 매서드 `getBoundingClientRect()`를 사용하여 `canvas` 요소의 위치와 크기를 파악합니다. 예를 들어, `getBoundingClientRect()`함수를 사용해 파악 된 요소의 위치 값 event.clientX가 80px이고, `canvas` 의 왼쪽 경계(rect.left)가 30px이면, `canvas` 내부에서의 마우스 X 좌표는 80px - 30px = 50px이 됩니다.
+때문에 뷰포트 내 `canvas`요소의 위치를 파악 할 수 있는 매서드 `getBoundingClientRect()`를 사용하여 `canvas` 요소의 위치와 크기를 파악합니다.
+
+예를 들어, `getBoundingClientRect()`함수를 사용해 파악 된 요소의 위치 값 event.clientX가 80px이고, `canvas` 의 왼쪽 경계(rect.left)가 30px이면, `canvas` 내부에서의 마우스 X 좌표는 80px - 30px = 50px이 됩니다.
+
+```js
+// 브라우저 기준 좌표 - 요소의 왼쪽 위치 = 요소 내부의 상대 좌표
+mouseX = event.clientX - rect.left;
+```
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/c06f9075-c238-4929-8f15-4bb1faf91726"> 
+  <img width="559" alt="뷰포트영역외요소내마우스위치구하기" src="https://github.com/user-attachments/assets/78bd3f9a-2ff1-4b1c-8fa1-5f7910685d7d" />
 </p>
 
 ```jsx
@@ -438,7 +516,28 @@ const mouseY = event.clientY - rect.top;
 
 이제 동작을 위한 모든 재료는 준비되어있습니다. 사용자가 `canvas`요소 안에서 마우스를 움직이면 발생하는 `mousemove` 이벤트로 초기 마우스 위치와 현재 위치 사이의 delta(변위, deltaX와 deltaY)를 계산합니다.
 
-이 변위를 기반으로, activeHandle(현재 조절 중인 handle)에 따라 지정 영역의 좌표와 크기를 업데이트합니다.예를 들어, 좌측 상단의 빨간 handle을 드래그 하면, 지정 영역의 `x`, `y` 값이 증가하면서 `width`와 `height`는 감소하게 됩니다.
+이 변위를 기반으로, activeHandle(현재 조절 중인 handle)에 따라 지정 영역의 좌표와 크기를 업데이트합니다.예를 들어, 좌측 상단의 빨간 핸들(handle)을 드래그 하면, 지정 영역의 `x`, `y` 값이 증가하면서 `width`와 `height`는 감소하게 됩니다.
+
+### **[개선점] useState 상태 관리, 그리고 useRef 기반 성능 최적화 고려**
+
+| 비교 항목                   | useState            | useRef                            |
+| --------------------------- | ------------------- | --------------------------------- |
+| 값 변경 시 리렌더 발생 여부 | ✅ 발생함           | ❌ 발생하지 않음                  |
+| UI에 바로 반영되는가?       | ✅ 예               | ❌ 아니오                         |
+| 마우스 좌표, 이전 상태 추적 | ❌ 렌더링 비용 발생 | ✅ 참조값만 갱신 → 성능 부담 적음 |
+
+핸들(handle) 조작 시 자르기 영역(`cropRect`)은 `useState`로 관리되며, `mousemove` 이벤트마다 상태가 계속 업데이트됩니다.
+이 경우 React 컴포넌트는 매번 리렌더링되기 때문에, 사용자가 빠르게 마우스를 움직이거나 이미지 크기가 클 경우 성능 이슈로 이어질 수 있습니다.
+
+비록 `canvas` 내부는 React의 가상 DOM 대상이 아니므로 직접적인 DOM 조작 비용은 없지만,
+상태 변경 자체는 리렌더를 유발하므로 비용이 누적될 수 있습니다.
+
+이에 따라 다음 리팩토링 단계에서는 useRef를 도입하여 다음과 같은 개선을 고려 중하게 되었습니다.
+
+> **개선 목표:**  
+> 마우스 좌표, 드래그 상태 등 UI에 직접 노출되지 않는 값은 useRef로 관리하여, <br/> **불필요한 리렌더를 줄이고 보다 부드러운 사용자 경험**을 제공할 예정입니다.
+
+<br/>
 
 ### **[발생 문제] 사용자가 지정한 영역이 너무 작아서 추출할 값이 없다**
 
@@ -461,7 +560,7 @@ if (newRect.width < MIN_CROP_SIZE) newRect.width = MIN_CROP_SIZE;
 if (newRect.height < MIN_CROP_SIZE) newRect.height = MIN_CROP_SIZE;
 ```
 
-<br/>
+<br/><br/>
 
 ## 3.4 지정한 영역을 잘라내기
 
