@@ -20,31 +20,30 @@ ImagePlace는 이미지 등록 시 <br/> 일회성으로 고유한 URL을 제공
 - [기능 및 환경 소개](#%EA%B8%B0%EB%8A%A5-%EB%B0%8F-%ED%99%98%EA%B2%BD-%EC%86%8C%EA%B0%9C)
   - [1.1 구현화면 및 기능 소개](#11-%EA%B5%AC%ED%98%84%ED%99%94%EB%A9%B4-%EB%B0%8F-%EA%B8%B0%EB%8A%A5-%EC%86%8C%EA%B0%9C)
   - [1.2 기술 스택 및 환경](#12-%EA%B8%B0%EC%88%A0-%EC%8A%A4%ED%83%9D-%EB%B0%8F-%ED%99%98%EA%B2%BD)
-    - [**Frontend**](#frontend)
-    - [**Backend**](#backend)
-    - [**배포 & 빌드**](#%EB%B0%B0%ED%8F%AC--%EB%B9%8C%EB%93%9C)
+    - [Frontend](#frontend)
+    - [Backend](#backend)
+    - [배포 & 빌드](#%EB%B0%B0%ED%8F%AC--%EB%B9%8C%EB%93%9C)
   - [1.3 상태관리는 어떻게? Zustand vs Redux vs useContext](#13-%EC%83%81%ED%83%9C%EA%B4%80%EB%A6%AC%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-zustand-vs-redux-vs-usecontext)
   - [1.4 호스팅 서비스, 왜 서버리스 Lambda인가?](#14-%ED%98%B8%EC%8A%A4%ED%8C%85-%EC%84%9C%EB%B9%84%EC%8A%A4-%EC%99%9C-%EC%84%9C%EB%B2%84%EB%A6%AC%EC%8A%A4-lambda%EC%9D%B8%EA%B0%80)
 - [세부 구현 사항](#%EC%84%B8%EB%B6%80-%EA%B5%AC%ED%98%84-%EC%82%AC%ED%95%AD)
   - [1.1 등록한 이미지는 어디로 저장 되는가](#11-%EB%93%B1%EB%A1%9D%ED%95%9C-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%8A%94-%EC%96%B4%EB%94%94%EB%A1%9C-%EC%A0%80%EC%9E%A5-%EB%90%98%EB%8A%94%EA%B0%80)
-    - [**[의문] 왜 일반 데이터베이스가 아닐까?**](#%EC%9D%98%EB%AC%B8-%EC%99%9C-%EC%9D%BC%EB%B0%98-%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4%EA%B0%80-%EC%95%84%EB%8B%90%EA%B9%8C)
-    - [**[해결] 왜 Amazon S3인가**](#%ED%95%B4%EA%B2%B0-%EC%99%9C-amazon-s3%EC%9D%B8%EA%B0%80)
+    - [[의문] 왜 일반 데이터베이스가 아닐까?](#%EC%9D%98%EB%AC%B8-%EC%99%9C-%EC%9D%BC%EB%B0%98-%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4%EA%B0%80-%EC%95%84%EB%8B%90%EA%B9%8C)
+    - [[해결] 왜 Amazon S3인가\*\*](#%ED%95%B4%EA%B2%B0-%EC%99%9C-amazon-s3%EC%9D%B8%EA%B0%80)
   - [1.2 이미지를 저장하기 위해 필요한 설정은?](#12-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%A5%BC-%EC%A0%80%EC%9E%A5%ED%95%98%EA%B8%B0-%EC%9C%84%ED%95%B4-%ED%95%84%EC%9A%94%ED%95%9C-%EC%84%A4%EC%A0%95%EC%9D%80)
-    - [**[발생 문제] S3에 동일한 파일명으로 업로드할 경우**](#%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-s3%EC%97%90-%EB%8F%99%EC%9D%BC%ED%95%9C-%ED%8C%8C%EC%9D%BC%EB%AA%85%EC%9C%BC%EB%A1%9C-%EC%97%85%EB%A1%9C%EB%93%9C%ED%95%A0-%EA%B2%BD%EC%9A%B0)
-    - [**[추가 발생 문제] 사용자가 S3에 직접 업로드하는 방법은 위험하다**](#%EC%B6%94%EA%B0%80-%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-s3%EC%97%90-%EC%A7%81%EC%A0%91-%EC%97%85%EB%A1%9C%EB%93%9C%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95%EC%9D%80-%EC%9C%84%ED%97%98%ED%95%98%EB%8B%A4)
+    - [[발생 문제] S3에 동일한 파일명으로 업로드할 경우](#%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-s3%EC%97%90-%EB%8F%99%EC%9D%BC%ED%95%9C-%ED%8C%8C%EC%9D%BC%EB%AA%85%EC%9C%BC%EB%A1%9C-%EC%97%85%EB%A1%9C%EB%93%9C%ED%95%A0-%EA%B2%BD%EC%9A%B0)
+    - [[추가 발생 문제] 사용자가 S3에 직접 업로드하는 방법은 위험하다](#%EC%B6%94%EA%B0%80-%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-s3%EC%97%90-%EC%A7%81%EC%A0%91-%EC%97%85%EB%A1%9C%EB%93%9C%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95%EC%9D%80-%EC%9C%84%ED%97%98%ED%95%98%EB%8B%A4)
   - [1.3 보안을 지켜 주는 AWS Pre-signedURL](#13-%EB%B3%B4%EC%95%88%EC%9D%84-%EC%A7%80%EC%BC%9C-%EC%A3%BC%EB%8A%94-aws-pre-signedurl)
-    - [**[번외 문제] DNS 관련 오류 및 해결**](#%EB%B2%88%EC%99%B8-%EB%AC%B8%EC%A0%9C-dns-%EA%B4%80%EB%A0%A8-%EC%98%A4%EB%A5%98-%EB%B0%8F-%ED%95%B4%EA%B2%B0)
+    - [[보안] 추가 보안 강화 방안, 짧은 TTL(Time To Live) 유지](#%EB%B3%B4%EC%95%88-%EC%B6%94%EA%B0%80-%EB%B3%B4%EC%95%88-%EA%B0%95%ED%99%94-%EB%B0%A9%EC%95%88-%EC%A7%A7%EC%9D%80-ttltime-to-live-%EC%9C%A0%EC%A7%80)
+    - [[번외 문제] DNS 관련 오류 및 해결](#%EB%B2%88%EC%99%B8-%EB%AC%B8%EC%A0%9C-dns-%EA%B4%80%EB%A0%A8-%EC%98%A4%EB%A5%98-%EB%B0%8F-%ED%95%B4%EA%B2%B0)
   - [2.1 이미지 해상도는 그대로 두고 용량만 줄일 수 있는가](#21-%EC%9D%B4%EB%AF%B8%EC%A7%80-%ED%95%B4%EC%83%81%EB%8F%84%EB%8A%94-%EA%B7%B8%EB%8C%80%EB%A1%9C-%EB%91%90%EA%B3%A0-%EC%9A%A9%EB%9F%89%EB%A7%8C-%EC%A4%84%EC%9D%BC-%EC%88%98-%EC%9E%88%EB%8A%94%EA%B0%80)
   - [2.2 quality를 사용하면 용량을 얼마나 줄일 수 있을까?](#22-quality%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%98%EB%A9%B4-%EC%9A%A9%EB%9F%89%EC%9D%84-%EC%96%BC%EB%A7%88%EB%82%98-%EC%A4%84%EC%9D%BC-%EC%88%98-%EC%9E%88%EC%9D%84%EA%B9%8C)
   - [3.1 어떤 방법으로 이미지를 자를까? UX UI구성하기](#31-%EC%96%B4%EB%96%A4-%EB%B0%A9%EB%B2%95%EC%9C%BC%EB%A1%9C-%EC%9D%B4%EB%AF%B8%EC%A7%80%EB%A5%BC-%EC%9E%90%EB%A5%BC%EA%B9%8C-ux-ui%EA%B5%AC%EC%84%B1%ED%95%98%EA%B8%B0)
   - [3.2 사용자가 잘라낼 Overlay 영역과 조절할 Handle 구하기](#32-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-%EC%9E%98%EB%9D%BC%EB%82%BC-overlay-%EC%98%81%EC%97%AD%EA%B3%BC-%EC%A1%B0%EC%A0%88%ED%95%A0-handle-%EA%B5%AC%ED%95%98%EA%B8%B0)
   - [3.3 Handle을 통한 지정 영역 조정하기, 캔버스 좌표 기반 움직임 구현](#33-handle%EC%9D%84-%ED%86%B5%ED%95%9C-%EC%A7%80%EC%A0%95-%EC%98%81%EC%97%AD-%EC%A1%B0%EC%A0%95%ED%95%98%EA%B8%B0-%EC%BA%94%EB%B2%84%EC%8A%A4-%EC%A2%8C%ED%91%9C-%EA%B8%B0%EB%B0%98-%EC%9B%80%EC%A7%81%EC%9E%84-%EA%B5%AC%ED%98%84)
-    - [**[개선점] useState 상태 관리, 그리고 useRef 기반 성능 최적화 고려**](#%EA%B0%9C%EC%84%A0%EC%A0%90-usestate-%EC%83%81%ED%83%9C-%EA%B4%80%EB%A6%AC-%EA%B7%B8%EB%A6%AC%EA%B3%A0-useref-%EA%B8%B0%EB%B0%98-%EC%84%B1%EB%8A%A5-%EC%B5%9C%EC%A0%81%ED%99%94-%EA%B3%A0%EB%A0%A4)
-    - [**[발생 문제] 사용자가 지정한 영역이 너무 작아서 추출할 값이 없다**](#%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-%EC%A7%80%EC%A0%95%ED%95%9C-%EC%98%81%EC%97%AD%EC%9D%B4-%EB%84%88%EB%AC%B4-%EC%9E%91%EC%95%84%EC%84%9C-%EC%B6%94%EC%B6%9C%ED%95%A0-%EA%B0%92%EC%9D%B4-%EC%97%86%EB%8B%A4)
+    - [[개선점] useState 상태 관리, 그리고 useRef 기반 성능 최적화 고려](#%EA%B0%9C%EC%84%A0%EC%A0%90-usestate-%EC%83%81%ED%83%9C-%EA%B4%80%EB%A6%AC-%EA%B7%B8%EB%A6%AC%EA%B3%A0-useref-%EA%B8%B0%EB%B0%98-%EC%84%B1%EB%8A%A5-%EC%B5%9C%EC%A0%81%ED%99%94-%EA%B3%A0%EB%A0%A4)
+    - [[발생 문제] 사용자가 지정한 영역이 너무 작아서 추출할 값이 없다](#%EB%B0%9C%EC%83%9D-%EB%AC%B8%EC%A0%9C-%EC%82%AC%EC%9A%A9%EC%9E%90%EA%B0%80-%EC%A7%80%EC%A0%95%ED%95%9C-%EC%98%81%EC%97%AD%EC%9D%B4-%EB%84%88%EB%AC%B4-%EC%9E%91%EC%95%84%EC%84%9C-%EC%B6%94%EC%B6%9C%ED%95%A0-%EA%B0%92%EC%9D%B4-%EC%97%86%EB%8B%A4)
   - [3.4 지정한 영역을 잘라내기](#34-%EC%A7%80%EC%A0%95%ED%95%9C-%EC%98%81%EC%97%AD%EC%9D%84-%EC%9E%98%EB%9D%BC%EB%82%B4%EA%B8%B0)
 - [회고](#%ED%9A%8C%EA%B3%A0)
-
-<!-- tocstop -->
 
 <br/><br/>
 
@@ -170,14 +169,14 @@ Node.js 기반으로 개발하는 것도 좋은 경험이 될 것이라 생각�
 ### **[해결] 왜 Amazon S3인가**
 
 **Amazon S3**는 “대용량 파일 전송·저장”에 최적화된 서비스입니다.  
-여러 서비스 중에서, **Amazon S3**를 택한 이유는 다른 AWS 서비스와 손쉬운 연동\*\*(Lambda, CloudFront 등) 할 수 있는 점을 확인했습니다.
+여러 서비스 중에서, **Amazon S3**를 택한 이유는 다른 AWS 서비스와 손쉬운 연동(Lambda, CloudFront 등) 할 수 있는 점을 확인했습니다.
 때문에 최종적으로 Amazon S3를 채택하여 이미지 저장소를 생성하게 되었습니다.
 
 <p align="center">
   <img width="650" alt="aws구성" src="https://github.com/user-attachments/assets/abd030cb-4efd-40b4-ba6b-c71385a937f7" />
 </p>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/bd6e0175-adc4-4a0a-ad4e-f10f6d6b80eb">
+  <img src="https://github.com/user-attachments/assets/ea44ba02-2f85-4543-ba77-222fb27fb6de">
 </p>
 
 이처럼, **빈번히 변경되고 크기가 큰 이미지**는 데이터베이스 대신 **S3**에 저장함으로써 서비스 안정성과 성능을 동시에 확보할 수 있었습니다.
@@ -244,11 +243,30 @@ Uncaught TypeError: Cannot assign to read only property "name" of object "[objec
 
 보안 정책 이슈로 인해 `file.name`을 직접 수정할 수 없었지만 대안으로 새로운 파일 객체를 생성하여 이름을 새로 부여하는 방법이 존재 했습니다. 아래는 새로운 파일 객체를 적용한 Logic입니다.
 
-![fileName수정Logic.png](https://github.com/user-attachments/assets/ac4ebe99-1fb5-4bcd-8c9b-28f4310794b1)
+<table>
+  <tr>
+    <td>❌ <strong>새로운 객체를 생성하여 파일명을 수정한 로직</strong></td>
+  </tr>
+  <tr>
+    <td width="100%" align="center">
+      <img src="https://github.com/user-attachments/assets/589da9e9-ca49-4c63-99e9-a79de838bbfc" />
+    </td>
+  </tr>
+</table>
 
 위의 코드를 재 테스트한 결과 정상적으로 열람되는 것을 확인했습니다. 다만, 본래의 목적이 사용자가 등록한 이미지의 파일명 변경에 집중한 것이므로 **굳이 새로운 파일 객체를 생성할 필요가 없음**을 깨달았습니다. <br/> <br/>
 이에 따라 원본 이미지 파일에서 확장자를 추출할 때, **`pop()` 매서드를 사용하여 확장자를 분리하고, 고유 식별자와 결합하여 새 파일명(newFileName)을 생성하는 Logic으로 재작성**하였습니다.<br/>
-![파일명수정Logic.jpg](https://github.com/user-attachments/assets/4adacd14-6482-4c86-a72e-8b7259658fc8)
+
+<table>
+  <tr>
+    <td>✅ <strong>파일명으로만 수정한 로직</strong></td>
+  </tr>
+  <tr>
+    <td width="100%" align="center">
+      <img src="https://github.com/user-attachments/assets/4adacd14-6482-4c86-a72e-8b7259658fc8" />
+    </td>
+  </tr>
+</table>
 
 이로써 사용자가 이미지를 등록하여 S3 저장소에 저장하는 초기 플로우 작업을 완료했지만, 추가 새로운 **문제**를 마주하게 되었습니다.
 
@@ -284,9 +302,19 @@ Uncaught TypeError: Cannot assign to read only property "name" of object "[objec
 
 <br/>
 
-![pre-signed적용한Logic.jpg](https://github.com/user-attachments/assets/684884dc-7d10-41ec-9a59-11b01f2d25f6)
+![pre-signed적용한Logic.jpg](https://github.com/user-attachments/assets/afa9b595-c4fa-4049-bfab-b54fe29d5e9f)
 
-이것으로 **사용자는** ImagePlace가 제공하는 **S3에 대해 이미지를 등록할 수 있도록 허용을 받아 유효기간 7일 동안 URL을 사용** 수 있게 되는 것 입니다!
+이것으로 **사용자는** ImagePlace가 제공하는 **S3에 대해 이미지를 등록할 수 있도록 300초(5분)간 허용** 받게 되는 것 입니다!
+
+<br/>
+
+### **[보안] 추가 보안 강화 방안, 짧은 TTL(Time To Live) 유지**
+
+사전 서명된 URL의 보안성을 한층 강화하기 위해, URL 유효 시간을 300초(5분)로 설정하고 CloudFront 캐시의 최소·기본·최대 TTL 역시 모두 300초로 통일했습니다.
+
+사전 서명된 URL의 유효 기간을 **24시간 → 5분으로 약 288배 단축(86,400초 → 300초)**하여, URL 탈취 시 공격 가능성을 대폭 줄였습니다. AWS 공식 문서에 따르면 기본 캐시 정책의 기본 TTL은 86,400초(24시간), 최소 TTL은 1초, 최대 TTL은 31,536,000초(365일)로 설정되어 있어 발급된 사전 서명 URL이 최대 하루 동안 재사용될 수 있습니다. 이처럼 긴 TTL은 URL이 탈취되었을 때 공격자가 오랜 시간 공격을 시도할 수 있는 여지를 제공하기 때문에, 모든 TTL을 300초로 단축하여 불필요하게 넓은 공격 표면을 최소화했습니다.
+
+이 설정을 통해 캐시 만료 시점을 예측 가능하게 만들고 변경된 리소스가 5분 이내에 반영되도록 보장함으로써, 사용자에게는 언제나 최신 이미지를 안전하게 제공하면서도 URL 유효 기간을 짧게 유지해 보안 위협을 크게 줄일 수 있었습니다.
 
 <br/>
 
@@ -304,20 +332,20 @@ CloudFront는 CDN(콘텐츠 전송 네트워크)로 Lambda 함수는 파일이 �
 
 여기서 도메인이 뜨지 않는다는 건 **CloundFront 연결에 문제**가 있다는 것이므로 Cloudfront의 설정을 다시 검토 할 필요가 있었습니다.
 
-**[💻 확인 리스트 ]**
+**[💻 문제원인 후보 리스트 ]**
 
-- [ ✅ ] CloudFront와 Route53 네임서버(NS) 주소가 일치하는지 확인.
-- [ ❌ ] CloudFront에 S3 버킷이 잘 연결 되어있는지 확인.
-- [ ❌ ] CloudFront 배포의 Origin Path(경로) 확인.
+- [ ✅ : 정상 ] CloudFront에 S3 버킷이 잘 연결 되어있는지 확인.
+- [ ✅ : 정상 ] CloudFront 배포의 Origin Path(경로) 확인.
   - Origin Path를 빈 값 설정 후 S3 버킷에 위치한 폴더(`upload/`)를 읽을 수 있도록 세팅했는지.
-- [ ❌ ] 캐시 무효화(invalidation) 작업 시도
+- [ ✅ : 정상 ] 캐시 무효화(invalidation) 작업 시도
   - 작업을 시도 → 버킷의 객체 경로 지정해서 추가 시도 → 변화 없음. <br/>
     ![image.png](https://github.com/user-attachments/assets/17b54012-63a9-480b-a281-a07a1708364a)
-- [ ❌ ] Cloudfront 에 ACM 인증서가 연결되어있는지?
+- [ ✅ : 정상 ] Cloudfront 에 ACM 인증서가 연결되어있는지?
   - Cloudfront 배포를 하기 위해선 미국 버지니아 동부 지역의 SSL 인증서가 필수 입니다!
   - 해당 SSL인증서에 \*.myimagePlace.com (와일드 카드 사용한 도메인으로 인증 함)
-- [ ❌ ] Alternate Domain Names (CNAMEs) 확인
+- [ ✅ : 정상 ] Alternate Domain Names (CNAMEs) 확인
   - 대체 도메인에 `img.myimageplace.com`과 `*.myimageplace.com`이 등록되어 있는지?
+- [ ❌ : 문제 ] CloudFront와 Route53 네임서버(NS) 주소가 일치하는지 확인.
 
 <br/>
 
@@ -371,7 +399,20 @@ CloudFront 배포 설정에서 Route53의 레코드 값을 재검토해 일치�
 
 ## 2.2 quality를 사용하면 용량을 얼마나 줄일 수 있을까?
 
-사용자가 업로드 한 이미지가 `canvas` 태그에 랜더링 되었을 때 `.toBlob()` 함수의 quality 파라미터값을 제어하게 되면 용량을 줄일 수 있습니다! 그중 품질을 손실을 덜 해치는 수치인 **0.8** 과 **0.7** 값을 설정하여 평균 압축률을 구해보았습니다.
+사용자가 업로드 한 이미지가 `canvas` 태그에 랜더링 되었을 때 `.toBlob()` 함수의 quality 파라미터값을 제어하게 되면 용량을 줄일 수 있습니다! 아래는 코드는 toBlob()매서드의 구조입니다.
+
+```js
+// Syntax => toBlob(callback, type, quality)
+canvas.toBlob(
+  (blob) => {
+    console.log(blob);
+  },
+  "image/jpeg",
+  0.5
+);
+```
+
+옵셔널 값인 quality는 0 ~ 1사이의 값을 가지며 값이 1에 가까울 수록 높은 품질을 제공합니다. 해당 수치를 고려하여 품질을 손실을 덜 해치는 수치인 **0.8** 과 **0.7** 값을 설정 후 평균 압축률을 구해보았습니다.
 
 |             | ✅quality 0.7 | ❌quality 0.8  |
 | ----------- | ------------- | -------------- |
@@ -391,7 +432,7 @@ CloudFront 배포 설정에서 Route53의 레코드 값을 재검토해 일치�
 - 1.93KB → 5.09KB
 - 4.18KB → 2.08KB
 
-MDN에 따르면 `quality` 인자는 0에서 1 사이의 값을 취하며 기본 값은 0.92입니다. 따라서 `quality`를 0.8로 설정할 경우, 극적인 용량 감소가 발생하지 않을 수 있다는 점은 이해가 되었으나 KB를 압축하는 테스트에서는 오히려 파일 크기가 증가하는 현상이 나타났습니다.
+앞서 기술하였듯이 `quality` 인자는 0에서 1 사이의 값을 가집니다. 따라서 `quality`를 0.8로 설정할 경우, 극적인 용량 감소가 발생하지 않을 수 있다는 점은 이해가 되었으나 KB를 압축하는 테스트에서는 오히려 파일 크기가 증가하는 현상이 나타났습니다.
 
 이러한 현상이 `quality`인자의 수치를 조정해도 동일하게 발생하는지 확인하기 위해 `quality`값을 0.7로 재 조정했습니다.
 
@@ -520,19 +561,22 @@ const mouseY = event.clientY - rect.top;
 
 ### **[개선점] useState 상태 관리, 그리고 useRef 기반 성능 최적화 고려**
 
+현재 캔버스 좌표기반 움직임을 관리하는 상태는 `useState`로 관리하고 있으며 움직임에 따른 리랜더를 줄일 수 있는 방향으로 `useRef`를 사용을 고려하게 되었습니다.
+
+사용자가 핸들(handle) 조작하게 되면 `useState`를 통하여 `mousemove` 이벤트 상태가 계속 업데이트됩니다.
+이 경우 React 컴포넌트는 매번 리렌더링되기 때문에, 사용자가 빠르게 마우스를 움직이거나 이미지 크기가 클 경우 성능 이슈로 이어질 수 있습니다.
+
+비록 `canvas` 내부는 React의 가상 DOM 대상이 아니므로 직접적인 DOM 조작 비용은 없지만,
+상태 변경 자체는 리렌더를 유발하므로 비용이 누적될 수 있는 부분을 간과할 수 가 없었습니다.
+때문에 컴포넌트의 시각적 출력에 영향을 미치지 않는 정보를 저장하는 데 적합한 `useRef` 를 대안으로 선정하게 되었습니다.
+
 | 비교 항목                   | useState            | useRef                            |
 | --------------------------- | ------------------- | --------------------------------- |
 | 값 변경 시 리렌더 발생 여부 | ✅ 발생함           | ❌ 발생하지 않음                  |
 | UI에 바로 반영되는가?       | ✅ 예               | ❌ 아니오                         |
 | 마우스 좌표, 이전 상태 추적 | ❌ 렌더링 비용 발생 | ✅ 참조값만 갱신 → 성능 부담 적음 |
 
-핸들(handle) 조작 시 자르기 영역(`cropRect`)은 `useState`로 관리되며, `mousemove` 이벤트마다 상태가 계속 업데이트됩니다.
-이 경우 React 컴포넌트는 매번 리렌더링되기 때문에, 사용자가 빠르게 마우스를 움직이거나 이미지 크기가 클 경우 성능 이슈로 이어질 수 있습니다.
-
-비록 `canvas` 내부는 React의 가상 DOM 대상이 아니므로 직접적인 DOM 조작 비용은 없지만,
-상태 변경 자체는 리렌더를 유발하므로 비용이 누적될 수 있습니다.
-
-이에 따라 다음 리팩토링 단계에서는 useRef를 도입하여 다음과 같은 개선을 고려 중하게 되었습니다.
+이에 따라 다음 리팩토링 단계에서는 useRef를 도입하여 다음과 같은 개선을 고려하게 되었습니다.
 
 > **개선 목표:**  
 > 마우스 좌표, 드래그 상태 등 UI에 직접 노출되지 않는 값은 useRef로 관리하여, <br/> **불필요한 리렌더를 줄이고 보다 부드러운 사용자 경험**을 제공할 예정입니다.
@@ -588,9 +632,9 @@ const cropCtx = cropCanvas.getContext("2d");
 
 # 회고
 
-프로젝트를 시작하기 전, 저는 여러 두려움에 사로잡혀 있었습니다. 특히 백엔드 부분도 작업하게 됨과 동시에 AWS와 같이 한 번도 사용해본 적 없는 클라우드 서비스를 다루어야 한다는 부담이 컸습니다. AWS의 방대한 정책 설정부터 복잡한 API 구성까지, 익숙하지 않은 영역에서 하나하나 지원하는 서비스들을 이해해 나가는 과정은 큰 도전이었습니다.
+프로젝트를 시작하기 전, 백엔드 부분도 작업하게 됨과 동시에 AWS와 같이 한 번도 사용해본 적 없는 클라우드 서비스를 다루어야 한다는 부담이 컸습니다. AWS의 방대한 정책 설정부터 복잡한 API 구성까지, 익숙하지 않은 영역에서 하나하나 지원하는 서비스들을 이해해 나가는 과정은 큰 도전이었습니다.
 
-초기에는 공식 문서의 방대함과 인터페이스의 복잡성에 압도되어 좌절감을 느낀 적도 있었습니다. 그러나 관련 온라인 강의를 찾아보고, 공식 문서를 꼼꼼히 읽으며 문제를 하나씩 해결해 나갔고, 이 과정을 통해 단순히 기능을 익히는 것을 넘어 문제 해결 능력과 새로운 기술에 대한 접근 방식을 터득할 수 있었습니다.
+그러나 관련 온라인 강의를 찾아보고, 공식 문서를 꼼꼼히 읽으며 문제를 하나씩 해결해 나갔고, 이 과정을 통해 단순히 기능을 익히는 것을 넘어 구현을 이루어낸 성취감 및 문제 해결 능력과 새로운 기술에 대한 접근 방식을 터득할 수 있었습니다.
 
 이번 프로젝트는 제 내면과 기술 양면에서 큰 성장을 이룰 수 있는 계기가 되었으며, 앞으로도 지속적으로 개선해 나갈 예정입니다.
 
