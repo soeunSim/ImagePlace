@@ -1,5 +1,5 @@
-import ImageUpload from "./components/ImageUpload";
-import Loading from "./components/Loading";
+import Loading from "./components/common/Loading";
+import ImageUpload from "./components/image/ImageUpload";
 import useLoadingStore from "./hooks/useLoadingStore";
 
 function App() {

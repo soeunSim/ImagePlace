@@ -3,9 +3,9 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import App from "./App.jsx";
-import GoogleAnalyticsTracker from "./components/GoogleAnalyticsTracker.jsx";
-import Loading from "./components/Loading.jsx";
-import UrlDelivery from "./components/UrlDelivery.jsx";
+import GoogleAnalyticsTracker from "./components/common/GoogleAnalyticsTracker.jsx";
+import Loading from "./components/common/Loading.jsx";
+import UrlDelivery from "./components/image/UrlDelivery.jsx";
 import "./index.css";
 
 createRoot(document.getElementById("root")).render(

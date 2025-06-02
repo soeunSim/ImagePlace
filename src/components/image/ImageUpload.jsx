@@ -8,10 +8,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
-import useLoadingStore from "../hooks/useLoadingStore";
+import useLoadingStore from "../../hooks/useLoadingStore";
+import HowToUseModal from "../common/HowToUseModal";
+import ToolTip from "../common/ToolTip";
 import CropModal from "./CropModal";
-import HowToUseModal from "./HowToUseModal";
-import ToolTip from "./ToolTip";
 
 export default function ImageUpload() {
   const { setIsLoading } = useLoadingStore();
