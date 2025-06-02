@@ -1,6 +1,6 @@
 import ImageUpload from "./components/ImageUpload";
 import Loading from "./components/Loading";
-import useLoadingStore from "./store/useLoadingStore";
+import useLoadingStore from "./hooks/useLoadingStore";
 
 function App() {
   const { isLoading } = useLoadingStore();

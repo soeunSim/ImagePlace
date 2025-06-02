@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
-import useLoadingStore from "../store/useLoadingStore";
+import useLoadingStore from "../hooks/useLoadingStore";
 import CropModal from "./CropModal";
 import HowToUseModal from "./HowToUseModal";
 import ToolTip from "./ToolTip";

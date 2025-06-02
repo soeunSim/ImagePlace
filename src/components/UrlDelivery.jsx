@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router-dom";
 
-import useLoadingStore from "../store/useLoadingStore";
+import useLoadingStore from "../hooks/useLoadingStore";
 
 export default function UrlDelivery() {
   const [urlData, setUrlData] = useState(null);
