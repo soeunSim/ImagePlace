@@ -2,6 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "paperlogy";
+  font-weight: 800;
+  font-style: bold;
+
+  src:
+    url("./assets/fonts/Paperlogy-8-ExtraBold.ttf") format("truetype"),
+    url("./assets/fonts/Paperlogy-8-ExtraBold-woff.woff") format("woff"),
+    url("./assets/fonts/Paperlogy-8-ExtraBold-eot.eot?iefix")
+      format("embedded-opentype");
+}
+
+@font-face {
+  font-family: "pretendard";
+  font-weight: 400;
+  font-style: normal;
+
+  src:
+    url("./assets/fonts/Pretendard-Regular.ttf") format("truetype"),
+    url("./assets/fonts/Pretendard-Regular.woff") format("woff"),
+    url("./assets/fonts/Pretendard-Regular.eot?iefix")
+      format("embedded-opentype");
+}
+
+@font-face {
+  font-family: "pretendard";
+  font-weight: 500;
+
+  src:
+    url("./assets/fonts/Pretendard-Medium.ttf") format("truetype"),
+    url("./assets/fonts/Pretendard-Medium.woff") format("woff"),
+    url("./assets/fonts/Pretendard-Medium.eot?iefix")
+      format("embedded-opentype");
+}
+
+@font-face {
+  font-family: "pretendard";
+  font-weight: 700;
+  font-style: bold;
+
+  src:
+    url("./assets/fonts/Pretendard-Bold.ttf") format("truetype"),
+    url("./assets/fonts/Pretendard-Bold.woff") format("woff"),
+    url("./assets/fonts/Pretendard-Bold.eot?iefix") format("embedded-opentype");
+}
+
 body {
   font-family: "pretendard";
 }
