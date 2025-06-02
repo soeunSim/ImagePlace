@@ -3,11 +3,10 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import App from "./App.jsx";
-import GoogleAnalyticsTracker from "./component/GoogleAnalyticsTracker.jsx";
-import Loading from "./component/Loading.jsx";
-import UrlDelivery from "./component/UrlDelivery.jsx";
+import GoogleAnalyticsTracker from "./components/GoogleAnalyticsTracker.jsx";
+import Loading from "./components/Loading.jsx";
+import UrlDelivery from "./components/UrlDelivery.jsx";
 import "./index.css";
-import "./static/fonts/font.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
