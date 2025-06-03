@@ -4,7 +4,6 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import App from "./App.jsx";
 import GoogleAnalyticsTracker from "./components/common/GoogleAnalyticsTracker.jsx";
-import Loading from "./components/common/Loading.jsx";
 import UrlDelivery from "./components/image/UrlDelivery.jsx";
 import "./index.css";
 
@@ -16,10 +15,6 @@ createRoot(document.getElementById("root")).render(
         <Route
           path="/delivery/:id"
           element={<UrlDelivery />}
-        />
-        <Route
-          path="/loading"
-          element={<Loading />}
         />
         <Route
           path="/"
