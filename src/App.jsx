@@ -1,11 +1,7 @@
-import Loading from "./components/common/Loading";
-import ImageUpload from "./components/image/ImageUpload";
-import useLoadingStore from "./hooks/useLoadingStore";
+import ImageUploadContainer from "./components/image/ImageUploadContainer";
 
 function App() {
-  const { isLoading } = useLoadingStore();
-
-  return <div>{isLoading ? <Loading /> : <ImageUpload />}</div>;
+  return <ImageUploadContainer />;
 }
 
 export default App;
