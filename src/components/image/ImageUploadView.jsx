@@ -10,7 +10,7 @@ import PropTypes from "prop-types";
 import HowToUseModal from "../common/HowToUseModal";
 import Loading from "../common/Loading";
 import ToolTip from "../common/ToolTip";
-import CropModal from "./CropModal";
+import CropModalContainer from "./CropModalContainer";
 
 export default function ImageUploadView({
   isLoading,
@@ -146,7 +146,7 @@ export default function ImageUploadView({
       </div>
 
       {isShowCropModal && (
-        <CropModal
+        <CropModalContainer
           selectFile={selectFile}
           setIsLoading={onCropComplete}
           setIsShowCropModal={onCloseCropModal}
