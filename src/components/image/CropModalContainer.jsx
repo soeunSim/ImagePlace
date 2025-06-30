@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useImageLoader } from "../../hooks/cropMadalHook/useImageLoader";
+import { useInitCanvas } from "../../hooks/cropMadalHook/useInitCanvas";
 import CropModalView from "./CropModalView";
 
 const CANVASWIDTH = 700;
@@ -21,20 +22,10 @@ export default function CropModal({
     width: 200,
     height: 150,
   });
-  const [recodeParams, setRecodeParams] = useState({
-    scaleFactor: 1,
-    offsetX: 0,
-    offsetY: 0,
-    imageWidth: 0,
-    imageHeight: 0,
-  });
   const [activeHandle, setActiveHandle] = useState(null);
   const [resizeStart, setResizeStart] = useState(null);
-  const baseCanvasRef = useRef(null);
-  const originalImageRef = useRef(null);
-  const overlayCanvasRef = useRef(null);
-  const didInitRef = useRef(false);
 
+  const overlayCanvasRef = useRef(null);
   const alertShownRef = useRef(false);
 
   const navigate = useNavigate();
@@ -48,12 +39,20 @@ export default function CropModal({
   }, [setIsShowCropModal]);
 
   const imageSrc = useImageLoader(selectFile);
+  const { baseCanvasRef, originalImageRef, recodeParamsRef } = useInitCanvas(
+    imageSrc,
+    CANVASWIDTH,
+    CANVASHEIGHT
+  );
 
   const drawOverlay = useCallback(() => {
     const canvas = overlayCanvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
     const ctx = canvas.getContext("2d");
     const dpr = Math.min(window.devicePixelRatio, 3) || 1;
+
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
 
@@ -95,81 +94,6 @@ export default function CropModal({
   }, [cropRect.x, cropRect.y, cropRect.width, cropRect.height]);
 
   useEffect(() => {
-    if (!imageSrc || didInitRef.current) return;
-    const baseCanvas = baseCanvasRef.current;
-    const ctx = baseCanvas.getContext("2d");
-    const dpr = window.devicePixelRatio || 1;
-
-    baseCanvas.width = CANVASWIDTH * dpr;
-    baseCanvas.height = CANVASHEIGHT * dpr;
-    ctx.scale(dpr, dpr);
-
-    baseCanvas.style.width = `${CANVASWIDTH}px`;
-    baseCanvas.style.height = `${CANVASHEIGHT}px`;
-
-    const image = new Image();
-    image.crossOrigin = "Anonymous";
-    image.src = imageSrc;
-    originalImageRef.current = image;
-
-    image.onload = () => {
-      const iw = image.width;
-      const ih = image.height;
-
-      let scaleFactor;
-      if (iw > CANVASWIDTH || ih > CANVASHEIGHT) {
-        scaleFactor = iw > ih ? CANVASWIDTH / iw : CANVASHEIGHT / ih;
-      } else {
-        scaleFactor = 1;
-      }
-      const drawnWidth = iw * scaleFactor;
-      const drawnHeight = ih * scaleFactor;
-      const offsetX = (CANVASWIDTH - drawnWidth) / 2;
-      const offsetY = (CANVASHEIGHT - drawnHeight) / 2;
-
-      ctx.fillStyle = "#313131";
-      ctx.fillRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
-      ctx.drawImage(
-        image,
-        0,
-        0,
-        iw,
-        ih,
-        offsetX,
-        offsetY,
-        drawnWidth,
-        drawnHeight
-      );
-
-      setCropRect({
-        x: offsetX + 20,
-        y: offsetY + 20,
-        width: Math.min(200, drawnWidth - 40),
-        height: Math.min(150, drawnHeight - 40),
-      });
-      setRecodeParams({
-        scaleFactor,
-        offsetX,
-        offsetY,
-        imageWidth: iw,
-        imageHeight: ih,
-      });
-
-      const overlayCanvas = overlayCanvasRef.current;
-      const overlayCtx = overlayCanvas.getContext("2d");
-
-      overlayCanvas.width = CANVASWIDTH * dpr;
-      overlayCanvas.height = CANVASHEIGHT * dpr;
-      overlayCtx.scale(dpr, dpr);
-      overlayCanvas.style.width = `${CANVASWIDTH}px`;
-      overlayCanvas.style.height = `${CANVASHEIGHT}px`;
-
-      drawOverlay();
-      didInitRef.current = true;
-    };
-  }, [imageSrc, drawOverlay]);
-
-  useEffect(() => {
     drawOverlay();
   }, [drawOverlay]);
 
@@ -179,29 +103,33 @@ export default function CropModal({
       mouseX <= cropRect.x + HANDLE_SIZE / 2 &&
       mouseY >= cropRect.y - HANDLE_SIZE / 2 &&
       mouseY <= cropRect.y + HANDLE_SIZE / 2
-    )
+    ) {
       return "tl";
+    }
     if (
       mouseX >= cropRect.x + cropRect.width - HANDLE_SIZE / 2 &&
       mouseX <= cropRect.x + cropRect.width + HANDLE_SIZE / 2 &&
       mouseY >= cropRect.y - HANDLE_SIZE / 2 &&
       mouseY <= cropRect.y + HANDLE_SIZE / 2
-    )
+    ) {
       return "tr";
+    }
     if (
       mouseX >= cropRect.x - HANDLE_SIZE / 2 &&
       mouseX <= cropRect.x + HANDLE_SIZE / 2 &&
       mouseY >= cropRect.y + cropRect.height - HANDLE_SIZE / 2 &&
       mouseY <= cropRect.y + cropRect.height + HANDLE_SIZE / 2
-    )
+    ) {
       return "bl";
+    }
     if (
       mouseX >= cropRect.x + cropRect.width - HANDLE_SIZE / 2 &&
       mouseX <= cropRect.x + cropRect.width + HANDLE_SIZE / 2 &&
       mouseY >= cropRect.y + cropRect.height - HANDLE_SIZE / 2 &&
       mouseY <= cropRect.y + cropRect.height + HANDLE_SIZE / 2
-    )
+    ) {
       return "br";
+    }
     return null;
   };
 
@@ -221,7 +149,9 @@ export default function CropModal({
   };
 
   const handleMouseMove = (event) => {
-    if (!activeHandle || !resizeStart) return;
+    if (!activeHandle || !resizeStart) {
+      return;
+    }
     const rect = overlayCanvasRef.current.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
@@ -280,8 +210,10 @@ export default function CropModal({
   };
 
   const handleCrop = async () => {
-    if (!originalImageRef.current) return;
-    const { scaleFactor, offsetX, offsetY } = recodeParams;
+    if (!originalImageRef.current) {
+      return;
+    }
+    const { scaleFactor, offsetX, offsetY } = recodeParamsRef.current;
     const originalX = Math.floor((cropRect.x - offsetX) / scaleFactor);
     const originalY = Math.floor((cropRect.y - offsetY) / scaleFactor);
     const originalWidth = Math.floor(cropRect.width / scaleFactor);
