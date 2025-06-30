@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useImageLoader } from "../../hooks/cropMadalHook/useImageLoader";
 import CropModalView from "./CropModalView";
 
 const CANVASWIDTH = 700;
@@ -14,7 +15,6 @@ export default function CropModal({
   setIsLoading,
   setIsShowCropModal,
 }) {
-  const [imageSrc, setImageSrc] = useState(null);
   const [cropRect, setCropRect] = useState({
     x: 100,
     y: 50,
@@ -47,15 +47,7 @@ export default function CropModal({
     }
   }, [setIsShowCropModal]);
 
-  useEffect(() => {
-    if (selectFile) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setImageSrc(event.target.result);
-      };
-      reader.readAsDataURL(selectFile);
-    }
-  }, [selectFile]);
+  const imageSrc = useImageLoader(selectFile);
 
   const drawOverlay = useCallback(() => {
     const canvas = overlayCanvasRef.current;
