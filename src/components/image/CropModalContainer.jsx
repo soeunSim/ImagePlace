@@ -1,9 +1,10 @@
 import PropTypes from "prop-types";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useImageLoader } from "../../hooks/cropMadalHook/useImageLoader";
 import { useInitCanvas } from "../../hooks/cropMadalHook/useInitCanvas";
+import { useOverlay } from "../../hooks/cropMadalHook/useOverlay";
 import CropModalView from "./CropModalView";
 
 const CANVASWIDTH = 700;
@@ -25,7 +26,6 @@ export default function CropModal({
   const [activeHandle, setActiveHandle] = useState(null);
   const [resizeStart, setResizeStart] = useState(null);
 
-  const overlayCanvasRef = useRef(null);
   const alertShownRef = useRef(false);
 
   const navigate = useNavigate();
@@ -44,58 +44,12 @@ export default function CropModal({
     CANVASWIDTH,
     CANVASHEIGHT
   );
-
-  const drawOverlay = useCallback(() => {
-    const canvas = overlayCanvasRef.current;
-    if (!canvas) {
-      return;
-    }
-    const ctx = canvas.getContext("2d");
-    const dpr = Math.min(window.devicePixelRatio, 3) || 1;
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(dpr, dpr);
-
-    ctx.clearRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.fillRect(0, 0, CANVASWIDTH, CANVASHEIGHT);
-
-    ctx.clearRect(cropRect.x, cropRect.y, cropRect.width, cropRect.height);
-
-    ctx.strokeStyle = "yellow";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(cropRect.x, cropRect.y, cropRect.width, cropRect.height);
-
-    ctx.fillStyle = "yellow";
-    ctx.fillRect(
-      cropRect.x - HANDLE_SIZE / 2,
-      cropRect.y - HANDLE_SIZE / 2,
-      HANDLE_SIZE,
-      HANDLE_SIZE
-    );
-    ctx.fillRect(
-      cropRect.x + cropRect.width - HANDLE_SIZE / 2,
-      cropRect.y - HANDLE_SIZE / 2,
-      HANDLE_SIZE,
-      HANDLE_SIZE
-    );
-    ctx.fillRect(
-      cropRect.x - HANDLE_SIZE / 2,
-      cropRect.y + cropRect.height - HANDLE_SIZE / 2,
-      HANDLE_SIZE,
-      HANDLE_SIZE
-    );
-    ctx.fillRect(
-      cropRect.x + cropRect.width - HANDLE_SIZE / 2,
-      cropRect.y + cropRect.height - HANDLE_SIZE / 2,
-      HANDLE_SIZE,
-      HANDLE_SIZE
-    );
-  }, [cropRect.x, cropRect.y, cropRect.width, cropRect.height]);
-
-  useEffect(() => {
-    drawOverlay();
-  }, [drawOverlay]);
+  const overlayCanvasRef = useOverlay(
+    cropRect,
+    HANDLE_SIZE,
+    CANVASWIDTH,
+    CANVASHEIGHT
+  );
 
   const getHandleUnderMouse = (mouseX, mouseY) => {
     if (
