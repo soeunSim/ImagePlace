@@ -138,21 +138,35 @@ export default function CropModal({
         break;
     }
 
-    if (newRect.width < MIN_CROP_SIZE) newRect.width = MIN_CROP_SIZE;
-    if (newRect.height < MIN_CROP_SIZE) newRect.height = MIN_CROP_SIZE;
-    if (newRect.x < 0) {
-      newRect.width += newRect.x;
-      newRect.x = 0;
+    if (newRect.width < MIN_CROP_SIZE) {
+      newRect.width = MIN_CROP_SIZE;
     }
-    if (newRect.y < 0) {
-      newRect.height += newRect.y;
-      newRect.y = 0;
+    if (newRect.height < MIN_CROP_SIZE) {
+      newRect.height = MIN_CROP_SIZE;
     }
-    if (newRect.x + newRect.width > CANVASWIDTH) {
-      newRect.width = CANVASWIDTH - newRect.x;
+
+    const { offsetX, offsetY, imageWidth, imageHeight, scaleFactor } =
+      recodeParamsRef.current;
+
+    const drawnWidth = imageWidth * scaleFactor;
+    const drawnHeight = imageHeight * scaleFactor;
+
+    if (newRect.x < offsetX) {
+      newRect.width = newRect.width - (offsetX - newRect.x);
+      newRect.x = offsetX;
     }
-    if (newRect.y + newRect.height > CANVASHEIGHT) {
-      newRect.height = CANVASHEIGHT - newRect.y;
+
+    if (newRect.y < offsetY) {
+      newRect.height = newRect.height - (offsetY - newRect.y);
+      newRect.y = offsetY;
+    }
+
+    if (newRect.x + newRect.width > offsetX + drawnWidth) {
+      newRect.width = offsetX + drawnWidth - newRect.x;
+    }
+
+    if (newRect.y + newRect.height > offsetY + drawnHeight) {
+      newRect.height = offsetY + drawnHeight - newRect.y;
     }
 
     setCropRect(newRect);
