@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export function useInitCanvas(imageSrc, width, height) {
+export function useInitCanvas(imageSrc, width, height, setCropRect) {
   const baseCanvasRef = useRef(null);
   const originalImageRef = useRef(null);
   const didInitRef = useRef(false);
@@ -62,6 +62,13 @@ export function useInitCanvas(imageSrc, width, height) {
         drawnHeight
       );
 
+      setCropRect({
+        x: offsetX + 20,
+        y: offsetY + 20,
+        width: Math.max(50, drawnWidth - 40),
+        height: Math.max(50, drawnHeight - 40),
+      });
+
       recodeParamsRef.current = {
         scaleFactor,
         offsetX,
@@ -72,7 +79,7 @@ export function useInitCanvas(imageSrc, width, height) {
 
       didInitRef.current = true;
     };
-  }, [imageSrc, width, height]);
+  }, [imageSrc, width, height, setCropRect]);
 
   return {
     baseCanvasRef,

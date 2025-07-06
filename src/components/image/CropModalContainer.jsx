@@ -17,12 +17,7 @@ export default function CropModal({
   setIsLoading,
   setIsShowCropModal,
 }) {
-  const [cropRect, setCropRect] = useState({
-    x: 100,
-    y: 50,
-    width: 200,
-    height: 150,
-  });
+  const [cropRect, setCropRect] = useState(null);
   const [activeHandle, setActiveHandle] = useState(null);
   const [resizeStart, setResizeStart] = useState(null);
 
@@ -42,10 +37,11 @@ export default function CropModal({
   const { baseCanvasRef, originalImageRef, recodeParamsRef } = useInitCanvas(
     imageSrc,
     CANVASWIDTH,
-    CANVASHEIGHT
+    CANVASHEIGHT,
+    setCropRect
   );
   const overlayCanvasRef = useOverlay(
-    cropRect,
+    cropRect || { x: 0, y: 0, width: 0, height: 0 },
     HANDLE_SIZE,
     CANVASWIDTH,
     CANVASHEIGHT
@@ -151,23 +147,36 @@ export default function CropModal({
     const drawnWidth = imageWidth * scaleFactor;
     const drawnHeight = imageHeight * scaleFactor;
 
-    if (newRect.x < offsetX) {
-      newRect.width = newRect.width - (offsetX - newRect.x);
-      newRect.x = offsetX;
+    let left = newRect.x;
+    let top = newRect.y;
+    let right = newRect.x + newRect.width;
+    let bottom = newRect.y + newRect.height;
+
+    const minX = offsetX;
+    const maxX = offsetX + drawnWidth;
+    left = Math.max(left, minX);
+    right = Math.min(right, maxX);
+
+    const minY = offsetY;
+    const maxY = offsetY + drawnHeight;
+    top = Math.max(top, minY);
+    bottom = Math.min(bottom, maxY);
+
+    if (right - left < MIN_CROP_SIZE) {
+      right = left + MIN_CROP_SIZE;
+      right = Math.min(right, maxX);
+      left = right - MIN_CROP_SIZE;
+    }
+    if (bottom - top < MIN_CROP_SIZE) {
+      bottom = top + MIN_CROP_SIZE;
+      bottom = Math.min(bottom, maxY);
+      top = bottom - MIN_CROP_SIZE;
     }
 
-    if (newRect.y < offsetY) {
-      newRect.height = newRect.height - (offsetY - newRect.y);
-      newRect.y = offsetY;
-    }
-
-    if (newRect.x + newRect.width > offsetX + drawnWidth) {
-      newRect.width = offsetX + drawnWidth - newRect.x;
-    }
-
-    if (newRect.y + newRect.height > offsetY + drawnHeight) {
-      newRect.height = offsetY + drawnHeight - newRect.y;
-    }
+    newRect.x = left;
+    newRect.y = top;
+    newRect.width = right - left;
+    newRect.height = bottom - top;
 
     setCropRect(newRect);
   };
