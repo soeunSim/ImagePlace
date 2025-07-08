@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useImageLoader } from "../../hooks/cropMadalHook/useImageLoader";
 import { useInitCanvas } from "../../hooks/cropMadalHook/useInitCanvas";
 import { useOverlay } from "../../hooks/cropMadalHook/useOverlay";
+import { getHandleUnderMouse } from "../../utils/cropUtils";
 import CropModalView from "./CropModalView";
 
 const CANVASWIDTH = 700;
@@ -47,47 +48,11 @@ export default function CropModal({
     CANVASHEIGHT
   );
 
-  const getHandleUnderMouse = (mouseX, mouseY) => {
-    if (
-      mouseX >= cropRect.x - HANDLE_SIZE / 2 &&
-      mouseX <= cropRect.x + HANDLE_SIZE / 2 &&
-      mouseY >= cropRect.y - HANDLE_SIZE / 2 &&
-      mouseY <= cropRect.y + HANDLE_SIZE / 2
-    ) {
-      return "tl";
-    }
-    if (
-      mouseX >= cropRect.x + cropRect.width - HANDLE_SIZE / 2 &&
-      mouseX <= cropRect.x + cropRect.width + HANDLE_SIZE / 2 &&
-      mouseY >= cropRect.y - HANDLE_SIZE / 2 &&
-      mouseY <= cropRect.y + HANDLE_SIZE / 2
-    ) {
-      return "tr";
-    }
-    if (
-      mouseX >= cropRect.x - HANDLE_SIZE / 2 &&
-      mouseX <= cropRect.x + HANDLE_SIZE / 2 &&
-      mouseY >= cropRect.y + cropRect.height - HANDLE_SIZE / 2 &&
-      mouseY <= cropRect.y + cropRect.height + HANDLE_SIZE / 2
-    ) {
-      return "bl";
-    }
-    if (
-      mouseX >= cropRect.x + cropRect.width - HANDLE_SIZE / 2 &&
-      mouseX <= cropRect.x + cropRect.width + HANDLE_SIZE / 2 &&
-      mouseY >= cropRect.y + cropRect.height - HANDLE_SIZE / 2 &&
-      mouseY <= cropRect.y + cropRect.height + HANDLE_SIZE / 2
-    ) {
-      return "br";
-    }
-    return null;
-  };
-
   const handleMouseDown = (event) => {
     const rect = overlayCanvasRef.current.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
-    const handle = getHandleUnderMouse(mouseX, mouseY);
+    const handle = getHandleUnderMouse(cropRect, mouseX, mouseY, HANDLE_SIZE);
     if (handle) {
       setActiveHandle(handle);
       setResizeStart({
@@ -261,7 +226,7 @@ export default function CropModal({
     }, "image/png");
   };
 
-  const handelCloseModal = () => {
+  const handleCloseModal = () => {
     setIsShowCropModal(false);
   };
 
@@ -273,7 +238,7 @@ export default function CropModal({
     onMouseDown: handleMouseDown,
     onMouseMove: handleMouseMove,
     onMouseUp: handleMouseUp,
-    onCloseModal: handelCloseModal,
+    onCloseModal: handleCloseModal,
   };
 
   return <CropModalView {...viewProps} />;
