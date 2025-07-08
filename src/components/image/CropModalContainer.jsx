@@ -180,6 +180,7 @@ export default function CropModal({
     cropCanvas.toBlob(async (blob) => {
       if (!blob) {
         console.error("Blob 생성 실패");
+        alert("이미지 처리에 실패했습니다.");
         return;
       }
       try {
@@ -201,6 +202,7 @@ export default function CropModal({
         if (!presignResponse.ok) {
           const errorText = await presignResponse.text();
           console.error("Pre-signed URL 요청 실패:", errorText);
+          alert("서버와 연결에 실패했습니다. 잠시 후 다시 시도해주세요.");
           throw new Error("pre-signed URL 요청 실패");
         }
 
@@ -216,12 +218,14 @@ export default function CropModal({
         if (!uploadResponse.ok) {
           const errorText = await uploadResponse.text();
           console.error("S3 업로드 실패, 응답:", errorText);
+          alert("파일 업로드에 실패했습니다. 다시 시도해주세요.");
           throw new Error("S3 업로드 실패");
         }
 
         navigate(`/delivery/${savedItem.id}`);
       } catch (error) {
         console.error("파일 업로드 에러:", error);
+        alert("알 수 없는 에러가 발생했습니다.");
       }
     }, "image/png");
   };
